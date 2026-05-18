@@ -626,6 +626,7 @@ void UpdateM4() {
                 m1CompOn=m1DeskOpen=m1PhotoSel=m1HasKey=m1KeyGlow=false;
                 m1MirrorOpen=m1LetterRead=m1CompLogged=false;
                 m1CompPos=0; m1BookPage=0; passPos=0; passUnlocked=false;
+                m1BookCurlTimer=0; m1BookCurlDir=0; m1BookTargetPage=0;
                 memset(m1CompCode,0,16); memset(m1DeskCode,0,16);
                 ChangeState(STATE_TITLE);
             }
