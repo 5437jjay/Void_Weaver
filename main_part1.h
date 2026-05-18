@@ -174,7 +174,16 @@ void LoadAllResources() {
     char path[256];
     for (int i = 0; i < TOTAL_SCENES; i++) {
         sprintf(path, "game_assets/scene_%02d.png", i);
-        scenes[i] = LoadTexture(path);
+        // Prioritize loading the new front page image if it exists in the root directory
+        if (i == 0 && FileExists("front page.jpeg")) {
+            scenes[i] = LoadTexture("front page.jpeg");
+        } else if (i == 17 && FileExists("system screen..jpeg")) {
+            scenes[i] = LoadTexture("system screen..jpeg");
+        } else if (i == 20 && FileExists("desk passcode.jpeg")) {
+            scenes[i] = LoadTexture("desk passcode.jpeg");
+        } else {
+            scenes[i] = LoadTexture(path);
+        }
     }
     // Load Times New Roman font at multiple sizes for crisp rendering
     gameFont = LoadFontEx("game_assets/times.ttf", 48, NULL, 0);

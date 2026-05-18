@@ -17,6 +17,14 @@ void UpdateIntro() {
     int idx = (int)curState - (int)STATE_INTRO_1; // 0-13
     DrawScene(idx + 1); // scene_01 to scene_14
     pageTimer += GetFrameTime();
+    
+    // Skip intro feature
+    DrawOutlinedText("Press SPACE to skip intro", 20, 20, 20, (Color){200,200,200,150});
+    if (IsKeyPressed(KEY_SPACE)) {
+        StartFade(STATE_M1_HOUSE);
+        return;
+    }
+
     // Draw cinematic text (3 lines at a time, on image, typewriter effect)
     bool allDone = DrawCinText(introTexts[idx], pageTimer, 0.03f, SCREEN_W-40);
     if(allDone) {
