@@ -7,12 +7,12 @@
 void UpdateM2() {
     switch(curState) {
     case STATE_M2_GARAGE: {
-        DrawScene(32);
+        DrawScene(32, 1.0f, true);
         // Mirror in center is selectable
         if(DrawSelectable(480,100,320,500)) ChangeState(STATE_M2_MIRROR);
     } break;
     case STATE_M2_MIRROR: {
-        DrawScene(33);
+        DrawScene(33, 1.0f, true);
         // Auto-advance after 3 seconds with vortex
         if(stateTimer>3.0f) ChangeState(STATE_M2_VORTEX);
     } break;
@@ -33,7 +33,7 @@ void UpdateM2() {
         if(stateTimer>4.0f) ChangeState(STATE_M2_TTT_INTRO);
     } break;
     case STATE_M2_TTT_INTRO: {
-        DrawScene(35);
+        DrawScene(35, 1.0f, true);
         pageTimer+=GetFrameTime();
         DrawCinText("Press SPACEBAR to begin the challenge...",pageTimer,0.04f,SCREEN_W);
         DrawText("Press SPACE to start",490,50,22,(Color){255,255,100,200});
@@ -213,7 +213,7 @@ void UpdateM2() {
         }
     } break;
     case STATE_M2_VEHICLE: {
-        DrawScene(38);
+        DrawScene(38, 1.0f, true);
         // Click levitation vehicle
         if(DrawSelectable(400,200,480,400)) StartSlide(STATE_M3_COCKPIT,1);
     } break;
@@ -225,45 +225,45 @@ void UpdateM2() {
 void UpdateM3() {
     switch(curState) {
     case STATE_M3_COCKPIT: {
-        DrawScene(39);
+        DrawScene(39, 1.0f, true);
         if(DrawSelectable(400,100,480,520)) StartSlide(STATE_M3_WALL_SLIDE,3);
     } break;
     case STATE_M3_WALL_SLIDE: {
-        DrawScene(40);
+        DrawScene(40, 1.0f, true);
         if(stateTimer>2.0f) ChangeState(STATE_M3_FLOAT_UP);
     } break;
     case STATE_M3_FLOAT_UP: {
-        DrawScene(41);
+        DrawScene(41, 1.0f, true);
         pageTimer+=GetFrameTime();
         DrawCinText("Agent Zero: This vehicle is an Automatic Levitation Vehicle.",pageTimer,0.04f,SCREEN_W);
         if(stateTimer>4.0f) StartSlide(STATE_M3_LEV_VEH,1);
     } break;
     case STATE_M3_LEV_VEH: {
-        DrawScene(42);
+        DrawScene(42, 1.0f, true);
         pageTimer+=GetFrameTime();
         DrawCinText(m3Texts[0],pageTimer,0.04f,SCREEN_W);
         if(stateTimer>4.0f) StartSlide(STATE_M3_RED_LINE,1);
     } break;
     case STATE_M3_RED_LINE: {
-        DrawScene(43);
+        DrawScene(43, 1.0f, true);
         pageTimer+=GetFrameTime();
         DrawCinText(m3Texts[1],pageTimer,0.04f,SCREEN_W);
         if(stateTimer>4.0f) StartSlide(STATE_M3_LAB_DOOR,1);
     } break;
     case STATE_M3_LAB_DOOR: {
-        DrawScene(44);
+        DrawScene(44, 1.0f, true);
         pageTimer+=GetFrameTime();
         DrawCinText(m3Texts[2],pageTimer,0.04f,SCREEN_W);
         if(stateTimer>4.0f) StartSlide(STATE_M3_LAB_ENTER,1);
     } break;
     case STATE_M3_LAB_ENTER: {
-        DrawScene(45);
+        DrawScene(45, 1.0f, true);
         pageTimer+=GetFrameTime();
         DrawCinText(m3Texts[3],pageTimer,0.04f,SCREEN_W);
         if(stateTimer>4.0f) StartSlide(STATE_M3_NEAR_WALL,1);
     } break;
     case STATE_M3_NEAR_WALL: {
-        DrawScene(46);
+        DrawScene(46, 1.0f, true);
         pageTimer+=GetFrameTime();
         DrawCinText(m3Texts[4],pageTimer,0.04f,SCREEN_W);
         if(DrawSelectable(400,100,480,500)) StartSlide(STATE_M3_WALL_ZOOM,1);
@@ -273,7 +273,7 @@ void UpdateM3() {
         if(stateTimer>2.0f) ChangeState(STATE_M3_CHESS_INTRO);
     } break;
     case STATE_M3_CHESS_INTRO: {
-        DrawScene(48);
+        DrawScene(48, 1.0f, true);
         pageTimer+=GetFrameTime();
         DrawCinText("A chess challenge awaits... Solve the puzzle to proceed.",pageTimer,0.04f,SCREEN_W);
         if(stateTimer>3.0f) { ChessInit(chess); ChangeState(STATE_M3_CHESS_GAME); }
@@ -507,8 +507,23 @@ void UpdateM3() {
         if((chess.result==1||chess.result==2) && stateTimer>4.0f) StartSlide(STATE_M3_LIFT_CORR,1);
     } break;
     case STATE_M3_LIFT_CORR: {
-        DrawScene(50);
-        if(stateTimer>2.0f) ChangeState(STATE_M3_LIFT_IN);
+        // Zoom animation (Ken Burns effect)
+        float zoom = 1.0f + (stateTimer / 3.0f) * 0.15f; // Zoom in 15% over 3s
+        float destW = SCREEN_W * zoom;
+        float destH = SCREEN_H * zoom;
+        DrawTexturePro(scenes[50],
+            (Rectangle){0, 0, (float)scenes[50].width, (float)scenes[50].height},
+            (Rectangle){SCREEN_W/2.0f - destW/2.0f, SCREEN_H/2.0f - destH/2.0f, destW, destH},
+            (Vector2){0, 0}, 0.0f, WHITE);
+
+        // Fade out to black in the last 0.5 seconds
+        if(stateTimer > 2.5f){
+            float alpha = (stateTimer - 2.5f) / 0.5f;
+            if(alpha > 1.0f) alpha = 1.0f;
+            DrawRectangle(0, 0, SCREEN_W, SCREEN_H, (Color){0, 0, 0, (unsigned char)(255 * alpha)});
+        }
+
+        if(stateTimer > 3.0f) ChangeState(STATE_M3_LIFT_IN);
     } break;
     case STATE_M3_LIFT_IN: {
         DrawScene(51);
@@ -537,7 +552,7 @@ void UpdateM3() {
 void UpdateM4() {
     switch(curState) {
     case STATE_M4_SUBMARINE: {
-        DrawScene(53);
+        DrawScene(53, 1.0f, true);
         // Passlock system selectable
         if(DrawSelectable(550,300,180,200)) ChangeState(STATE_M4_PASSLOCK);
     } break;
@@ -588,12 +603,12 @@ void UpdateM4() {
         }
     } break;
     case STATE_M4_AI_ROOM: {
-        DrawScene(55);
+        DrawScene(55, 1.0f, true); // Cinematic zoom
         // AI machine selectable
         if(DrawSelectable(450,150,380,400)) StartFade(STATE_M4_BREAK);
     } break;
     case STATE_M4_BREAK: {
-        DrawScene(56);
+        DrawScene(56, 1.0f, true); // Cinematic zoom
         // Play glass breaking sound once
         if(stateTimer<0.1f) {
             StopSound(bgMusic);
@@ -603,16 +618,16 @@ void UpdateM4() {
         if(stateTimer>4.0f) StartFade(STATE_M4_EXPLODE);
     } break;
     case STATE_M4_EXPLODE: {
-        DrawScene(57);
+        DrawScene(57, 1.0f, true); // Cinematic zoom
         // Explosion effect - screen shake
         if(stateTimer<2.0f) {
             float shake=sinf(stateTimer*50)*5*(2.0f-stateTimer);
-            DrawScene(57);
+            DrawScene(57, 1.0f, true);
         }
         if(stateTimer>4.0f) StartFade(STATE_M4_ENDING);
     } break;
     case STATE_M4_ENDING: {
-        DrawScene(58);
+        DrawScene(58, 1.0f, true); // Cinematic zoom
         pageTimer+=GetFrameTime();
         DrawCinText("James: Nice man, you faced the impossible, carried the fate of millions in\n"
             "your hands, and returned victorious. The world owes you its tomorrow.",

@@ -20,10 +20,8 @@ int main() {
     srand((unsigned)time(NULL));
 
     // Initialize window and audio - start in borderless fullscreen to fill laptop screen
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
-    InitWindow(SCREEN_W, SCREEN_H, "VOID WEAVER - Detective Life in an AI Futuristic World");
-    // Maximize window to fill the entire laptop screen
-    MaximizeWindow();
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT | FLAG_BORDERLESS_WINDOWED_MODE);
+    InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "VOID WEAVER - Detective Life in an AI Futuristic World");
     InitAudioDevice();
     SetTargetFPS(60);
 
