@@ -40,108 +40,176 @@ void UpdateM2() {
         if(IsKeyPressed(KEY_SPACE)) { UTTTInit(uttt); ChangeState(STATE_M2_TTT_GAME); }
     } break;
     case STATE_M2_TTT_GAME: {
-        // Draw background
-        DrawRectangle(0,0,SCREEN_W,SCREEN_H,(Color){15,20,35,255});
-        DrawText("ULTIMATE TIC-TAC-TOE",420,10,28,(Color){100,200,255,255});
-        
-        // HOST CODE button
-        if(DrawButton(SCREEN_W-200,10,180,35,"HOST CODE",18)) uttt.hostMode=!uttt.hostMode;
-        
-        // Host code input
-        if(uttt.hostMode) {
-            DrawRectangle(SCREEN_W-250,55,230,40,(Color){20,30,60,230});
-            DrawText("Code:",SCREEN_W-245,63,18,WHITE);
-            char buf[7]; strncpy(buf,uttt.hostCode,uttt.hostLen); buf[uttt.hostLen]=0;
-            DrawText(buf,SCREEN_W-180,63,18,YELLOW);
-            // Input
-            for(int k=KEY_A;k<=KEY_Z;k++){
-                if(IsKeyPressed(k)&&uttt.hostLen<5){
-                    uttt.hostCode[uttt.hostLen++]='A'+(k-KEY_A);
-                }
-            }
-            if(IsKeyPressed(KEY_BACKSPACE)&&uttt.hostLen>0) uttt.hostLen--;
-            // Check host code
-            if(uttt.hostLen==5 && strncmp(uttt.hostCode,"VWDAZ",5)==0) {
-                uttt.result=1; // Skip
-            }
-        }
-        
-        // Draw the 9 small boards
-        int gridX=240, gridY=60, cellSz=20, boardGap=8;
-        int boardSz=cellSz*3;
-        int bigSz=boardSz*3+boardGap*2;
-        
-        for(int br=0;br<3;br++) for(int bc=0;bc<3;bc++) {
+        // ======== BACKGROUND (light lavender/grey) ========
+        DrawRectangle(0,0,SCREEN_W,SCREEN_H,(Color){210,215,225,255});
+
+        // ======== BOARD LAYOUT ========
+        int gridX=170, gridY=40;
+        int boardSz=180, cellSz=boardSz/3, boardGap=18;
+        int totalSz=boardSz*3+boardGap*2;
+
+        // Outer frame
+        DrawRectangleRounded({(float)(gridX-12),(float)(gridY-12),
+            (float)(totalSz+24),(float)(totalSz+24)},0.03f,8,(Color){195,200,212,255});
+
+        // ======== DRAW 9 SMALL BOARDS ========
+        for(int br=0;br<3;br++) for(int bc=0;bc<3;bc++){
             int bi=br*3+bc;
             int bx=gridX+bc*(boardSz+boardGap);
             int by=gridY+br*(boardSz+boardGap);
-            
-            // Highlight active board
-            bool isActive=(uttt.activeBoard==-1&&uttt.won[bi]==0)||(uttt.activeBoard==bi);
-            Color bgCol=isActive?(Color){30,50,80,255}:(Color){20,25,35,255};
-            if(uttt.won[bi]==1) bgCol=(Color){60,20,20,200};
-            if(uttt.won[bi]==2) bgCol=(Color){20,20,60,200};
-            DrawRectangle(bx,by,boardSz,boardSz,bgCol);
-            
-            // Draw grid lines
-            for(int i=1;i<3;i++) {
-                DrawLine(bx+i*cellSz,by,bx+i*cellSz,by+boardSz,(Color){60,80,120,200});
-                DrawLine(bx,by+i*cellSz,bx+boardSz,by+i*cellSz,(Color){60,80,120,200});
+
+            // Board background
+            Color bgCol={235,238,245,255}; // Default light
+            bool isActive=(!uttt.pickingBoard && uttt.activeBoard==bi);
+            bool isSelectable=(uttt.pickingBoard && uttt.won[bi]==0);
+            bool isWon=(uttt.won[bi]==1||uttt.won[bi]==2);
+
+            if(isActive) bgCol=(Color){220,235,255,255}; // Active: subtle blue
+            if(isSelectable) bgCol=(Color){225,240,225,255}; // Selectable: subtle green
+            if(isWon) bgCol=(Color){200,200,210,200}; // Won: greyed
+
+            DrawRectangleRounded({(float)bx,(float)by,(float)boardSz,(float)boardSz},
+                0.08f,8,bgCol);
+
+            // Active board glow border
+            if(isActive)
+                DrawRectangleRoundedLinesEx({(float)(bx-2),(float)(by-2),
+                    (float)(boardSz+4),(float)(boardSz+4)},0.08f,8,3,(Color){80,150,255,200});
+            else if(isSelectable)
+                DrawRectangleRoundedLinesEx({(float)(bx-1),(float)(by-1),
+                    (float)(boardSz+2),(float)(boardSz+2)},0.08f,8,2,(Color){80,200,80,150});
+            else
+                DrawRectangleRoundedLinesEx({(float)bx,(float)by,
+                    (float)boardSz,(float)boardSz},0.08f,8,1,(Color){190,195,210,200});
+
+            // Grid lines inside small board
+            Color lineCol={200,205,218,255};
+            for(int i=1;i<3;i++){
+                DrawLineEx({(float)(bx+i*cellSz),(float)(by+4)},
+                    {(float)(bx+i*cellSz),(float)(by+boardSz-4)},1.5f,lineCol);
+                DrawLineEx({(float)(bx+4),(float)(by+i*cellSz)},
+                    {(float)(bx+boardSz-4),(float)(by+i*cellSz)},1.5f,lineCol);
             }
-            
-            // Draw cells
-            for(int cr=0;cr<3;cr++) for(int cc=0;cc<3;cc++) {
-                int ci=cr*3+cc;
-                int cx=bx+cc*cellSz+2, cy=by+cr*cellSz+2;
-                if(uttt.cells[bi][ci]==1) { // X - red
-                    DrawLine(cx,cy,cx+cellSz-4,cy+cellSz-4,RED);
-                    DrawLine(cx+cellSz-4,cy,cx,cy+cellSz-4,RED);
-                } else if(uttt.cells[bi][ci]==2) { // O - blue
-                    DrawCircleLines(cx+cellSz/2-2,cy+cellSz/2-2,cellSz/2-4,BLUE);
+
+            // Draw cells (X and O)
+            if(!isWon){
+                for(int cr=0;cr<3;cr++) for(int cc=0;cc<3;cc++){
+                    int ci=cr*3+cc;
+                    int cx=bx+cc*cellSz, cy=by+cr*cellSz;
+                    int pad=12;
+                    if(uttt.cells[bi][ci]==1){ // X - coral red
+                        DrawLineEx({(float)(cx+pad),(float)(cy+pad)},
+                            {(float)(cx+cellSz-pad),(float)(cy+cellSz-pad)},3,(Color){220,80,80,255});
+                        DrawLineEx({(float)(cx+cellSz-pad),(float)(cy+pad)},
+                            {(float)(cx+pad),(float)(cy+cellSz-pad)},3,(Color){220,80,80,255});
+                    } else if(uttt.cells[bi][ci]==2){ // O - blue
+                        DrawCircleLinesV({(float)(cx+cellSz/2),(float)(cy+cellSz/2)},
+                            (float)(cellSz/2-pad),(Color){70,100,200,255});
+                        DrawCircleLinesV({(float)(cx+cellSz/2),(float)(cy+cellSz/2)},
+                            (float)(cellSz/2-pad-1),(Color){70,100,200,255});
+                    }
                 }
             }
-            
-            // Won board overlay
-            if(uttt.won[bi]==1) DrawText("X",bx+boardSz/2-15,by+boardSz/2-20,40,(Color){255,80,80,200});
-            if(uttt.won[bi]==2) DrawText("O",bx+boardSz/2-15,by+boardSz/2-20,40,(Color){80,80,255,200});
-            
-            DrawRectangleLines(bx,by,boardSz,boardSz,(Color){60,100,160,200});
+
+            // Won board: large X or O overlay
+            if(uttt.won[bi]==1){
+                int pad=20;
+                DrawLineEx({(float)(bx+pad),(float)(by+pad)},
+                    {(float)(bx+boardSz-pad),(float)(by+boardSz-pad)},6,(Color){220,60,60,200});
+                DrawLineEx({(float)(bx+boardSz-pad),(float)(by+pad)},
+                    {(float)(bx+pad),(float)(by+boardSz-pad)},6,(Color){220,60,60,200});
+            }
+            if(uttt.won[bi]==2){
+                DrawCircleLinesV({(float)(bx+boardSz/2),(float)(by+boardSz/2)},
+                    (float)(boardSz/2-20),(Color){60,80,200,200});
+                DrawCircleLinesV({(float)(bx+boardSz/2),(float)(by+boardSz/2)},
+                    (float)(boardSz/2-22),(Color){60,80,200,200});
+            }
         }
-        
-        // Handle player click
-        if(uttt.playerTurn && uttt.result==0 && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+
+        // ======== HOST CODE BUTTON (golden, top-right) ========
+        {
+            int hx=SCREEN_W-175,hy=10,hw=155,hh=36;
             Vector2 mp=GetMousePosition();
-            for(int br=0;br<3;br++) for(int bc=0;bc<3;bc++) {
+            bool hv=mp.x>=hx&&mp.x<=hx+hw&&mp.y>=hy&&mp.y<=hy+hh;
+            Color bg=hv?(Color){225,185,55,240}:(Color){195,155,40,220};
+            DrawRectangleRounded({(float)hx,(float)hy,(float)hw,(float)hh},0.4f,8,bg);
+            DrawRectangleRoundedLinesEx({(float)hx,(float)hy,(float)hw,(float)hh},0.4f,8,2,
+                hv?(Color){255,225,100,255}:(Color){210,170,50,200});
+            int tw2=MeasureText("HOST CODE",18);
+            DrawText("HOST CODE",hx+(hw-tw2)/2,hy+9,18,(Color){40,20,0,255});
+            if(hv&&IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) uttt.hostMode=!uttt.hostMode;
+        }
+        if(uttt.hostMode){
+            DrawRectangle(SCREEN_W-215,54,195,34,(Color){40,45,60,235});
+            DrawRectangleLinesEx({(float)(SCREEN_W-215),54,195,34},1,(Color){100,150,200,180});
+            DrawText("Code:",SCREEN_W-210,62,16,WHITE);
+            char buf[7]; strncpy(buf,uttt.hostCode,uttt.hostLen); buf[uttt.hostLen]=0;
+            DrawText(buf,SCREEN_W-150,62,16,YELLOW);
+            for(int k=KEY_A;k<=KEY_Z;k++)
+                if(IsKeyPressed(k)&&uttt.hostLen<5) uttt.hostCode[uttt.hostLen++]='A'+(k-KEY_A);
+            if(IsKeyPressed(KEY_BACKSPACE)&&uttt.hostLen>0) uttt.hostLen--;
+            if(uttt.hostLen==5&&strncmp(uttt.hostCode,"VWDAZ",5)==0) uttt.result=1;
+        }
+
+        // ======== STATUS TEXT ========
+        {
+            const char* status="";
+            Color stCol={60,70,90,220};
+            if(uttt.result==0){
+                if(uttt.pickingBoard && uttt.picker==1)
+                    status="Pick a board to play in";
+                else if(uttt.pickingBoard && uttt.picker==2)
+                    status="Bot is picking a board...";
+                else if(uttt.playerTurn)
+                    status="Your turn (X)";
+                else
+                    status="Bot thinking (O)...";
+            }
+            int sw=MeasureText(status,20);
+            DrawText(status,(SCREEN_W-sw)/2,SCREEN_H-45,20,stCol);
+        }
+
+        // ======== HANDLE PLAYER CLICKS ========
+        if(uttt.result==0 && uttt.playerTurn && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            Vector2 mp=GetMousePosition();
+            for(int br=0;br<3;br++) for(int bc=0;bc<3;bc++){
                 int bi=br*3+bc;
                 int bx=gridX+bc*(boardSz+boardGap);
                 int by=gridY+br*(boardSz+boardGap);
-                if(mp.x>=bx&&mp.x<bx+boardSz&&mp.y>=by&&mp.y<by+boardSz) {
-                    int cc=(int)(mp.x-bx)/cellSz;
-                    int cr=(int)(mp.y-by)/cellSz;
-                    if(cc>=0&&cc<3&&cr>=0&&cr<3) {
-                        int ci=cr*3+cc;
-                        if(UTTTMove(uttt,bi,ci,1)) {
-                            // Bot moves after player
-                            if(uttt.result==0 && !uttt.playerTurn) UTTTBotMove(uttt);
+                if(mp.x>=bx&&mp.x<bx+boardSz&&mp.y>=by&&mp.y<by+boardSz){
+                    if(uttt.pickingBoard && uttt.picker==1){
+                        UTTTPickBoard(uttt,bi);
+                    } else if(!uttt.pickingBoard && uttt.activeBoard==bi){
+                        int cc2=(int)(mp.x-bx)/cellSz;
+                        int cr2=(int)(mp.y-by)/cellSz;
+                        if(cc2>=0&&cc2<3&&cr2>=0&&cr2<3){
+                            int ci=cr2*3+cc2;
+                            UTTTMove(uttt,bi,ci,1);
                         }
                     }
                 }
             }
         }
-        
-        // Status text
-        if(uttt.result==1) {
-            DrawText("YOU WIN!",520,SCREEN_H-60,36,GREEN);
+
+        // ======== BOT TURN ========
+        if(uttt.result==0 && !uttt.playerTurn){
+            UTTTBotMove(uttt);
+        }
+
+        // ======== GAME END MESSAGES ========
+        if(uttt.result==1){
+            DrawRectangle(0,SCREEN_H/2-35,SCREEN_W,70,(Color){0,0,0,180});
+            DrawText("YOU WIN!",SCREEN_W/2-70,SCREEN_H/2-14,28,(Color){0,255,120,255});
             if(stateTimer>2.0f) StartSlide(STATE_M2_VEHICLE,1);
-        } else if(uttt.result==2) {
-            DrawText("BOT WINS! Try again...",440,SCREEN_H-60,28,RED);
-            if(stateTimer>3.0f) { UTTTInit(uttt); stateTimer=0; }
-        } else if(uttt.result==3) {
-            DrawText("DRAW! Try again...",470,SCREEN_H-60,28,YELLOW);
-            if(stateTimer>3.0f) { UTTTInit(uttt); stateTimer=0; }
-        } else {
-            DrawText(uttt.playerTurn?"Your turn (X)":"Bot thinking (O)...",
-                480,SCREEN_H-40,20,(Color){180,200,230,255});
+        } else if(uttt.result==2){
+            DrawRectangle(0,SCREEN_H/2-35,SCREEN_W,70,(Color){0,0,0,180});
+            DrawText("BOT WINS! Resetting...",SCREEN_W/2-140,SCREEN_H/2-14,24,(Color){255,80,80,255});
+            if(stateTimer>3.0f){UTTTInit(uttt);uttt.score[0]=uttt.score[0];stateTimer=0;}
+        } else if(uttt.result==3){
+            DrawRectangle(0,SCREEN_H/2-35,SCREEN_W,70,(Color){0,0,0,180});
+            DrawText("DRAW! Resetting...",SCREEN_W/2-110,SCREEN_H/2-14,24,(Color){255,200,0,255});
+            if(stateTimer>3.0f){UTTTInit(uttt);stateTimer=0;}
         }
     } break;
     case STATE_M2_VEHICLE: {
