@@ -49,7 +49,9 @@ void UpdateM1() {
     } break;
     case STATE_M1_ROOM_BASE1:
     case STATE_M1_ROOM_BASE2: {
-        DrawScene(m1CompOn ? 18 : 16);
+        // Show appropriate room base: key picked (scene 59), computer on (18), or default (16)
+        int roomScene = m1HasKey ? 59 : (m1CompOn ? 18 : 16);
+        DrawScene(roomScene);
         // Draw inventory box bottom-right
         DrawRectangle(SCREEN_W-80,SCREEN_H-80,70,70,(Color){0,0,0,150});
         DrawRectangleLines(SCREEN_W-80,SCREEN_H-80,70,70,(Color){100,200,255,200});
@@ -58,19 +60,19 @@ void UpdateM1() {
             DrawText("KEY",SCREEN_W-72,SCREEN_H-60,16,kc);
             if(DrawSelectable(SCREEN_W-80,SCREEN_H-80,70,70)) m1KeyGlow=!m1KeyGlow;
         }
-        // Selectable objects
-        if(DrawSelectable(580,150,200,180)) { // Computer screen
+        // Selectable objects - positions matched to actual room image
+        if(DrawSelectable(30,265,175,165)) { // Computer screen (left monitor)
             if(!m1CompOn) { m1CompOn=true; ChangeState(STATE_M1_ROOM_BASE2); }
             else if(!m1CompLogged) ChangeState(STATE_M1_COMPUTER);
             else ChangeState(STATE_M1_COMP_DESK);
         }
-        if(DrawSelectable(900,280,80,120)) ChangeState(STATE_M1_BOOK); // Book
-        if(DrawSelectable(560,380,220,60)) ChangeState(STATE_M1_DESK_PASS); // Desk
-        if(DrawSelectable(200,200,120,160)) { // Mirror
+        if(DrawSelectable(1095,175,125,100)) ChangeState(STATE_M1_BOOK); // Book (Machine Intelligence on top-right shelf)
+        if(DrawSelectable(30,430,200,150)) ChangeState(STATE_M1_DESK_PASS); // Desk (left desk drawers)
+        if(DrawSelectable(720,95,190,220)) { // Mirror (wall, center-right)
             if(m1KeyGlow && m1HasKey) ChangeState(STATE_M1_MIRROR_OPEN);
             else ChangeState(STATE_M1_MIRROR);
         }
-        if(m1PhotoSel && DrawSelectable(350,100,100,80)) ChangeState(STATE_M1_PHOTO_KEY);
+        if(m1PhotoSel && DrawSelectable(370,55,240,270)) ChangeState(STATE_M1_PHOTO_KEY); // Photo (wall frame, center-left)
     } break;
     case STATE_M1_COMPUTER: {
         DrawScene(17, 0.3f); // Dim background
@@ -139,8 +141,8 @@ void UpdateM1() {
     } break;
     case STATE_M1_DESK_PASS: {
         DrawScene(20);
-        int bx=440,by=250;
-        DrawRectangle(bx-20,by-20,400,200,(Color){20,30,50,230});
+        int bx=440,by=250,bw=400,bh2=200;
+        DrawRectangle(bx-20,by-20,bw,bh2,(Color){20,30,50,230});
         DrawText("DESK LOCK",bx+120,by-10,22,(Color){200,200,200,255});
         for(int i=0;i<4;i++) {
             int dx=bx+i*90;
@@ -159,7 +161,12 @@ void UpdateM1() {
             DrawText("UNLOCKED!",bx+110,by+150,24,GREEN);
             if(stateTimer>1.0f) { m1DeskOpen=true; m1PhotoSel=true; ChangeState(STATE_M1_DESK_ITEMS); }
         }
+        // Click outside the passcode box OR right-click to go back to room
         Vector2 mp=GetMousePosition();
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT) &&
+           !(mp.x>=bx-20&&mp.x<=bx-20+bw&&mp.y>=by-20&&mp.y<=by-20+bh2)) {
+            ChangeState(m1CompOn?STATE_M1_ROOM_BASE2:STATE_M1_ROOM_BASE1);
+        }
         if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
             ChangeState(m1CompOn?STATE_M1_ROOM_BASE2:STATE_M1_ROOM_BASE1);
     } break;
@@ -207,13 +214,13 @@ void UpdateM1() {
     } break;
     case STATE_M1_COMP_DESK: {
         DrawScene(26);
-        // Location icon selectable
-        if(DrawSelectable(200,300,100,100)) ChangeState(STATE_M1_MAP);
+        // Location of L icon selectable (center of desktop)
+        if(DrawSelectable(555,240,90,90)) ChangeState(STATE_M1_MAP);
     } break;
     case STATE_M1_MAP: {
         DrawScene(27);
-        // Red dot selectable - starts travel sequence
-        if(DrawSelectable(700,350,40,40)) StartSlide(STATE_TRAVEL_FLIGHT,1);
+        // Red dot/crosshair on Greenland - starts travel sequence
+        if(DrawSelectable(555,260,55,55)) StartSlide(STATE_TRAVEL_FLIGHT,1);
     } break;
     default: break;
     }

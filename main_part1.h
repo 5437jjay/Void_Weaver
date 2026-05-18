@@ -181,6 +181,10 @@ void LoadAllResources() {
             scenes[i] = LoadTexture("system screen..jpeg");
         } else if (i == 20 && FileExists("desk passcode.jpeg")) {
             scenes[i] = LoadTexture("desk passcode.jpeg");
+        } else if (i == 54 && FileExists("mod 4 passcode.jpeg")) {
+            scenes[i] = LoadTexture("mod 4 passcode.jpeg");
+        } else if (i == 59 && FileExists("room_key_picked.png")) {
+            scenes[i] = LoadTexture("room_key_picked.png");
         } else {
             scenes[i] = LoadTexture(path);
         }
