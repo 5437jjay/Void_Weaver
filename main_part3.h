@@ -211,85 +211,232 @@ void UpdateM3() {
         if(stateTimer>3.0f) { ChessInit(chess); ChangeState(STATE_M3_CHESS_GAME); }
     } break;
     case STATE_M3_CHESS_GAME: {
-        DrawRectangle(0,0,SCREEN_W,SCREEN_H,(Color){20,25,40,255});
-        DrawText("CHESS PUZZLE",500,10,28,(Color){100,200,255,255});
-        // HOST CODE + RESET buttons
-        if(DrawButton(SCREEN_W-200,10,180,35,"HOST CODE",18)) chess.hostMode=!chess.hostMode;
-        if(DrawButton(SCREEN_W-200,55,180,35,"RESET",18)) ChessInit(chess);
-        // Host code input
-        if(chess.hostMode) {
-            DrawRectangle(SCREEN_W-250,100,230,40,(Color){20,30,60,230});
-            DrawText("Code:",SCREEN_W-245,108,18,WHITE);
-            char buf[7]; strncpy(buf,chess.host,chess.hostLen); buf[chess.hostLen]=0;
-            DrawText(buf,SCREEN_W-180,108,18,YELLOW);
-            for(int k=KEY_A;k<=KEY_Z;k++){
-                if(IsKeyPressed(k)&&chess.hostLen<5) chess.host[chess.hostLen++]='A'+(k-KEY_A);
-            }
-            if(IsKeyPressed(KEY_BACKSPACE)&&chess.hostLen>0) chess.hostLen--;
-            if(chess.hostLen==5&&strncmp(chess.host,"VWDAZ",5)==0) chess.result=2;
-        }
-        // Draw chess board
-        int bx=340,by=60,sq=75;
-        const char* cols="ABCDEFGH";
-        const char* pieceChars="  PRNBQKprnbqk";
-        Color lightSq={220,210,180,255}, darkSq={120,100,70,255};
-        for(int r=0;r<8;r++) for(int c=0;c<8;c++) {
-            int dr=7-r; // Display row (flip board)
-            int x=bx+c*sq, y=by+dr*sq;
+        // ======== BACKGROUND ========
+        DrawRectangle(0,0,SCREEN_W,SCREEN_H,(Color){8,14,30,255});
+        // Subtle grid pattern
+        for(int gx=0;gx<SCREEN_W;gx+=40) DrawLine(gx,0,gx,SCREEN_H,(Color){20,35,60,40});
+        for(int gy=0;gy<SCREEN_H;gy+=40) DrawLine(0,gy,SCREEN_W,gy,(Color){20,35,60,40});
+
+        // ======== BOARD LAYOUT ========
+        int sq=70, boardPx=sq*8;
+        int bx=(SCREEN_W-boardPx)/2, by=52;
+
+        // Outer glow frame
+        DrawRectangleLinesEx({(float)(bx-10),(float)(by-10),(float)(boardPx+20),(float)(boardPx+20)},2,(Color){0,180,255,120});
+        DrawRectangleLinesEx({(float)(bx-6),(float)(by-6),(float)(boardPx+12),(float)(boardPx+12)},1,(Color){0,120,200,80});
+        DrawRectangle(bx-4,by-4,boardPx+8,boardPx+8,(Color){15,25,50,200});
+
+        // ======== SQUARES ========
+        Color ltSq={165,190,215,255}, dkSq={50,80,120,255};
+        for(int r=0;r<8;r++) for(int c=0;c<8;c++){
+            int dr=7-r;
+            int x=bx+c*sq, y2=by+dr*sq;
             bool light=((r+c)%2==0);
-            Color sqCol=light?lightSq:darkSq;
-            // Highlight selected piece
-            if(chess.selR==r&&chess.selC==c) sqCol=(Color){100,200,100,255};
-            // Highlight valid moves
-            if(chess.highlights[r][c]) sqCol=(Color){100,255,100,150};
-            DrawRectangle(x,y,sq,sq,sqCol);
-            // Draw piece
-            int p=chess.board[r][c];
-            if(p!=CE) {
-                Color pc=IsWhite(p)?WHITE:(Color){40,40,40,255};
-                char ch[2]={pieceChars[p],0};
-                DrawText(ch,x+sq/2-8,y+sq/2-12,28,pc);
+            Color col=light?ltSq:dkSq;
+            // Last move highlight
+            if((r==chess.lastFR&&c==chess.lastFC)||(r==chess.lastTR&&c==chess.lastTC))
+                col=light?(Color){180,205,145,255}:(Color){90,130,75,255};
+            // Selected piece
+            if(chess.selR==r&&chess.selC==c)
+                col=(Color){90,195,115,255};
+            // Legal moves
+            if(chess.highlights[r][c])
+                col=light?(Color){130,210,130,200}:(Color){70,160,70,200};
+            DrawRectangle(x,y2,sq,sq,col);
+            // Legal move dot/ring
+            if(chess.highlights[r][c]){
+                if(chess.board[r][c]==CE)
+                    DrawCircle(x+sq/2,y2+sq/2,9,(Color){0,0,0,70});
+                else
+                    DrawRing({(float)(x+sq/2),(float)(y2+sq/2)},(float)(sq/2-5),(float)(sq/2-1),0,360,36,(Color){0,0,0,70});
             }
-        }
-        // Row/col labels
-        for(int i=0;i<8;i++) {
-            char lb[2]={cols[i],0};
-            DrawText(lb,bx+i*sq+sq/2-5,by+8*sq+5,16,(Color){180,180,180,255});
-            char rn[2]={(char)('1'+i),0};
-            DrawText(rn,bx-20,by+(7-i)*sq+sq/2-8,16,(Color){180,180,180,255});
-        }
-        // Handle clicks
-        if(chess.result==0 && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            Vector2 mp=GetMousePosition();
-            int cc=(int)(mp.x-bx)/sq, dr=(int)(mp.y-by)/sq;
-            if(cc>=0&&cc<8&&dr>=0&&dr<8) {
-                int cr=7-dr;
-                if(chess.selR<0) {
-                    // Select a white piece
-                    if(IsWhite(chess.board[cr][cc])) {
-                        chess.selR=cr; chess.selC=cc;
-                        memset(chess.highlights,0,sizeof(chess.highlights));
-                        int mvs[64][2];
-                        int n=GetMoves(chess.board,cr,cc,mvs,true);
-                        for(int i=0;i<n;i++) chess.highlights[mvs[i][0]][mvs[i][1]]=true;
-                    }
+            // ======== DRAW PIECE ========
+            int p=chess.board[r][c];
+            if(p!=CE){
+                const char* sym="";
+                switch(p){
+                    case WP:case BP:sym="P";break; case WR:case BR:sym="R";break;
+                    case WN:case BN:sym="N";break; case WB:case BB:sym="B";break;
+                    case WQ:case BQ:sym="Q";break; case WK:case BK:sym="K";break;
+                }
+                int fs=38;
+                int tw=MeasureText(sym,fs), tx=x+(sq-tw)/2, ty=y2+(sq-fs)/2;
+                if(IsWhite(p)){
+                    for(int dx=-2;dx<=2;dx++) for(int dy=-2;dy<=2;dy++)
+                        if(dx||dy) DrawText(sym,tx+dx,ty+dy,fs,(Color){30,30,30,220});
+                    DrawText(sym,tx,ty,fs,(Color){240,240,235,255});
                 } else {
-                    // Try to move
-                    if(chess.highlights[cr][cc]) {
-                        chess.board[cr][cc]=chess.board[chess.selR][chess.selC];
-                        chess.board[chess.selR][chess.selC]=CE;
-                        // Check for checkmate
-                        if(IsCheckmate(chess.board,false)) chess.result=1;
-                        else { ChessBotMove(chess); if(IsCheckmate(chess.board,true)) chess.result=2; }
-                    }
-                    chess.selR=chess.selC=-1;
-                    memset(chess.highlights,0,sizeof(chess.highlights));
+                    for(int dx=-2;dx<=2;dx++) for(int dy=-2;dy<=2;dy++)
+                        if(dx||dy) DrawText(sym,tx+dx,ty+dy,fs,(Color){160,160,160,100});
+                    DrawText(sym,tx,ty,fs,(Color){25,25,25,255});
                 }
             }
         }
-        if(chess.result==1) { DrawText("CHECKMATE! You Win!",450,SCREEN_H-50,28,GREEN); }
-        if(chess.result==2) { DrawText("Puzzle Complete!",470,SCREEN_H-50,28,GREEN); }
-        if(chess.result>0 && stateTimer>2.0f) StartSlide(STATE_M3_LIFT_CORR,1);
+
+        // ======== FILE & RANK LABELS ========
+        const char* files="ABCDEFGH";
+        Color lblC={120,180,240,200};
+        for(int i=0;i<8;i++){
+            char fb[2]={files[i],0};
+            DrawText(fb,bx+i*sq+sq/2-5,by-24,18,lblC);
+            DrawText(fb,bx+i*sq+sq/2-5,by+boardPx+8,18,lblC);
+            char rb[2]={(char)('1'+i),0};
+            DrawText(rb,bx-24,by+(7-i)*sq+sq/2-9,18,lblC);
+            DrawText(rb,bx+boardPx+12,by+(7-i)*sq+sq/2-9,18,lblC);
+        }
+
+        // ======== HOST CODE BUTTON (golden, top-right) ========
+        {
+            int hx=SCREEN_W-175,hy=10,hw=155,hh=36;
+            Vector2 mp=GetMousePosition();
+            bool hv=mp.x>=hx&&mp.x<=hx+hw&&mp.y>=hy&&mp.y<=hy+hh;
+            Color bg=hv?(Color){225,185,55,240}:(Color){195,155,40,220};
+            DrawRectangleRounded({(float)hx,(float)hy,(float)hw,(float)hh},0.4f,8,bg);
+            DrawRectangleRoundedLinesEx({(float)hx,(float)hy,(float)hw,(float)hh},0.4f,8,2,
+                hv?(Color){255,225,100,255}:(Color){210,170,50,200});
+            int tw2=MeasureText("HOST CODE",18);
+            DrawText("HOST CODE",hx+(hw-tw2)/2,hy+9,18,(Color){40,20,0,255});
+            if(hv&&IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) chess.hostMode=!chess.hostMode;
+        }
+        // Host code input
+        if(chess.hostMode){
+            DrawRectangle(SCREEN_W-215,54,195,34,(Color){12,22,48,235});
+            DrawRectangleLinesEx({(float)(SCREEN_W-215),54,195,34},1,(Color){0,140,255,140});
+            DrawText("Code:",SCREEN_W-210,62,16,WHITE);
+            char buf[7]; strncpy(buf,chess.host,chess.hostLen); buf[chess.hostLen]=0;
+            DrawText(buf,SCREEN_W-150,62,16,YELLOW);
+            for(int k=KEY_A;k<=KEY_Z;k++)
+                if(IsKeyPressed(k)&&chess.hostLen<5) chess.host[chess.hostLen++]='A'+(k-KEY_A);
+            if(IsKeyPressed(KEY_BACKSPACE)&&chess.hostLen>0) chess.hostLen--;
+            if(chess.hostLen==5&&strncmp(chess.host,"VWDAZ",5)==0) chess.result=2;
+        }
+
+        // ======== RESET BUTTON (golden, bottom-center) ========
+        {
+            int rw=220,rh=40;
+            int rx=(SCREEN_W-rw)/2, ry=by+boardPx+32;
+            Vector2 mp=GetMousePosition();
+            bool hv=mp.x>=rx&&mp.x<=rx+rw&&mp.y>=ry&&mp.y<=ry+rh;
+            Color bg=hv?(Color){225,185,55,240}:(Color){195,155,40,220};
+            DrawRectangleRounded({(float)rx,(float)ry,(float)rw,(float)rh},0.4f,8,bg);
+            DrawRectangleRoundedLinesEx({(float)rx,(float)ry,(float)rw,(float)rh},0.4f,8,2,
+                hv?(Color){255,225,100,255}:(Color){210,170,50,200});
+            int tw3=MeasureText("RESET",22);
+            DrawText("RESET",rx+(rw-tw3)/2,ry+9,22,(Color){40,20,0,255});
+            if(hv&&IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) ChessInit(chess);
+        }
+
+        // ======== AI DIFFICULTY SELECTOR ========
+        {
+            const char* df[]={"EASY","MED","HARD"};
+            Color dc[]={(Color){80,200,80,255},(Color){220,200,50,255},(Color){255,70,70,255}};
+            for(int i=0;i<3;i++){
+                int dx=bx+boardPx+18, dy=by+200+i*35;
+                bool sel=(chess.aiDiff==i);
+                Color tc=sel?dc[i]:(Color){70,70,70,180};
+                DrawText(df[i],dx,dy,14,tc);
+                if(sel) DrawRectangleLinesEx({(float)(dx-3),(float)(dy-2),
+                    (float)(MeasureText(df[i],14)+6),18.0f},1,tc);
+                Vector2 mp=GetMousePosition();
+                if(mp.x>=dx-3&&mp.x<=dx+55&&mp.y>=dy-2&&mp.y<=dy+16
+                    &&IsMouseButtonPressed(MOUSE_BUTTON_LEFT)&&chess.result==0)
+                    chess.aiDiff=i;
+            }
+            DrawText("AI",bx+boardPx+22,by+180,14,(Color){100,150,200,180});
+        }
+
+        // ======== CHECK INDICATOR ========
+        if(chess.result==0 && InCheck(chess.board,chess.whiteTurn)){
+            float pulse=(sinf(animTime*5)+1)*0.5f;
+            unsigned char a=(unsigned char)(180+pulse*75);
+            DrawText("CHECK!",(SCREEN_W-MeasureText("CHECK!",22))/2,by+boardPx+10,22,(Color){255,50,50,a});
+        }
+
+        // ======== TURN INDICATOR ========
+        if(chess.result==0 && !chess.promoting){
+            const char* turnTxt=chess.whiteTurn?"Your turn (White)":"AI thinking...";
+            Color turnCol=chess.whiteTurn?(Color){200,220,255,200}:(Color){255,180,80,200};
+            DrawText(turnTxt,bx,by+boardPx+12,16,turnCol);
+        }
+
+        // ======== PROMOTION UI ========
+        if(chess.promoting){
+            DrawRectangle(0,0,SCREEN_W,SCREEN_H,(Color){0,0,0,160});
+            int pw=320,ph=120;
+            int px2=(SCREEN_W-pw)/2, py2=(SCREEN_H-ph)/2;
+            DrawRectangleRounded({(float)px2,(float)py2,(float)pw,(float)ph},0.15f,8,(Color){20,35,65,240});
+            DrawRectangleRoundedLinesEx({(float)px2,(float)py2,(float)pw,(float)ph},0.15f,8,2,(Color){0,160,255,200});
+            DrawText("Promote to:",px2+90,py2+10,20,(Color){200,220,255,255});
+            const char* opts[]={"Q","R","B","N"};
+            int pcs[]={WQ,WR,WB,WN};
+            for(int i=0;i<4;i++){
+                int ox=px2+20+i*75, oy=py2+45;
+                Vector2 mp=GetMousePosition();
+                bool hv=mp.x>=ox&&mp.x<=ox+60&&mp.y>=oy&&mp.y<=oy+60;
+                DrawRectangle(ox,oy,60,60,hv?(Color){60,110,180,255}:(Color){30,55,100,255});
+                DrawRectangleLinesEx({(float)ox,(float)oy,60,60},2,(Color){80,160,255,255});
+                int otw=MeasureText(opts[i],32);
+                DrawText(opts[i],ox+(60-otw)/2,oy+14,32,WHITE);
+                if(hv&&IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+                    ChessPromote(chess,pcs[i]);
+                    ChessCheckEnd(chess);
+                }
+            }
+        }
+        // ======== PLAYER INPUT ========
+        else if(chess.result==0 && chess.whiteTurn && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+            Vector2 mp=GetMousePosition();
+            int mc=(int)(mp.x-bx)/sq, mdr=(int)(mp.y-by)/sq;
+            if(mc>=0&&mc<8&&mdr>=0&&mdr<8){
+                int mr=7-mdr;
+                if(chess.selR<0){
+                    if(IsWhite(chess.board[mr][mc])){
+                        chess.selR=mr; chess.selC=mc;
+                        memset(chess.highlights,0,sizeof(chess.highlights));
+                        int mvs[64][2];
+                        int nm=GetMoves(chess.board,mr,mc,mvs,true,chess.epCol,
+                            chess.wKMoved,chess.wRA_Moved,chess.wRH_Moved,
+                            chess.bKMoved,chess.bRA_Moved,chess.bRH_Moved);
+                        for(int i=0;i<nm;i++) chess.highlights[mvs[i][0]][mvs[i][1]]=true;
+                    }
+                } else {
+                    if(chess.highlights[mr][mc]){
+                        ChessDoMove(chess,chess.selR,chess.selC,mr,mc);
+                        if(!chess.promoting) ChessCheckEnd(chess);
+                    } else if(IsWhite(chess.board[mr][mc])){
+                        chess.selR=mr; chess.selC=mc;
+                        memset(chess.highlights,0,sizeof(chess.highlights));
+                        int mvs[64][2];
+                        int nm=GetMoves(chess.board,mr,mc,mvs,true,chess.epCol,
+                            chess.wKMoved,chess.wRA_Moved,chess.wRH_Moved,
+                            chess.bKMoved,chess.bRA_Moved,chess.bRH_Moved);
+                        for(int i=0;i<nm;i++) chess.highlights[mvs[i][0]][mvs[i][1]]=true;
+                    } else {
+                        chess.selR=chess.selC=-1;
+                        memset(chess.highlights,0,sizeof(chess.highlights));
+                    }
+                }
+            }
+        }
+        // ======== AI TURN ========
+        else if(chess.result==0 && !chess.whiteTurn && !chess.promoting){
+            ChessBotMove(chess);
+            ChessCheckEnd(chess);
+        }
+
+        // ======== GAME END MESSAGES ========
+        if(chess.result>=1 && chess.result<=5){
+            DrawRectangle(0,SCREEN_H/2-35,SCREEN_W,70,(Color){0,0,0,190});
+            const char* msg=""; Color mc=GREEN;
+            if(chess.result==1){msg="CHECKMATE! You Win!";mc=(Color){0,255,120,255};}
+            if(chess.result==2){msg="Puzzle Complete!";mc=(Color){0,255,120,255};}
+            if(chess.result==3){msg="You Lost! Click RESET.";mc=(Color){255,80,80,255};}
+            if(chess.result==4){msg="STALEMATE - Draw!";mc=(Color){255,210,0,255};}
+            if(chess.result==5){msg="DRAW!";mc=(Color){255,210,0,255};}
+            int mw=MeasureText(msg,28);
+            DrawText(msg,(SCREEN_W-mw)/2,SCREEN_H/2-14,28,mc);
+        }
+        if((chess.result==1||chess.result==2) && stateTimer>4.0f) StartSlide(STATE_M3_LIFT_CORR,1);
     } break;
     case STATE_M3_LIFT_CORR: {
         DrawScene(50);
