@@ -3,6 +3,127 @@
 #define MAIN_PART2_H
 #include "main_part1.h"
 
+// ===== CUSTOM DRAWING FUNCTIONS =====
+void DrawMetalInventoryBox(int x, int y, int w, int h) {
+    // Main metal body
+    DrawRectangle(x, y, w, h, (Color){100,110,120,255});
+    DrawRectangle(x+2, y+2, w-4, h-4, (Color){80,90,100,255});
+    
+    // Top inner recessed square (item slot)
+    int slotX = x + 10;
+    int slotY = y + 10;
+    int slotW = w - 20;
+    int slotH = h - 35; // Leave room for bottom handle
+    
+    // Slot background (very dark)
+    DrawRectangle(slotX, slotY, slotW, slotH, (Color){30,35,40,255});
+    
+    // Bevels for recessed look
+    DrawLine(slotX, slotY, slotX+slotW, slotY, (Color){40,45,50,255}); // Top dark
+    DrawLine(slotX, slotY, slotX, slotY+slotH, (Color){40,45,50,255}); // Left dark
+    DrawLine(slotX, slotY+slotH, slotX+slotW, slotY+slotH, (Color){150,160,170,255}); // Bottom light
+    DrawLine(slotX+slotW, slotY, slotX+slotW, slotY+slotH, (Color){150,160,170,255}); // Right light
+    
+    // Outer bevel for the slot
+    DrawLine(slotX-1, slotY-1, slotX+slotW+1, slotY-1, (Color){150,160,170,255});
+    DrawLine(slotX-1, slotY-1, slotX-1, slotY+slotH+1, (Color){150,160,170,255});
+    
+    // Bottom handle section
+    int handleY = slotY + slotH + 8;
+    int handleH = 15;
+    DrawRectangle(slotX, handleY, slotW, handleH, (Color){90,100,110,255});
+    // Handle bevels
+    DrawLine(slotX, handleY, slotX+slotW, handleY, (Color){140,150,160,255}); // Top light
+    DrawLine(slotX, handleY+handleH, slotX+slotW, handleY+handleH, (Color){50,60,70,255}); // Bottom dark
+    
+    // Downward Triangle in handle
+    Vector2 p1 = { (float)x + w/2 - 6, (float)handleY + 3 };
+    Vector2 p2 = { (float)x + w/2 + 6, (float)handleY + 3 };
+    Vector2 p3 = { (float)x + w/2, (float)handleY + 11 };
+    DrawTriangle(p1, p3, p2, (Color){60,70,80,255});
+    DrawTriangleLines(p1, p3, p2, (Color){120,130,140,255});
+    
+    // Corner screws
+    int cx1 = x + 12;
+    int cy = y + h - 10;
+    int cx2 = x + w - 12;
+    DrawCircle(cx1, cy, 5, (Color){70,80,90,255});
+    DrawCircleLines(cx1, cy, 5, (Color){40,50,60,255});
+    DrawLine(cx1-3, cy-3, cx1+3, cy+3, (Color){50,60,70,255});
+    
+    DrawCircle(cx2, cy, 5, (Color){70,80,90,255});
+    DrawCircleLines(cx2, cy, 5, (Color){40,50,60,255});
+    DrawLine(cx2-3, cy+3, cx2+3, cy-3, (Color){50,60,70,255});
+    
+    // Edge border
+    DrawRectangleLines(x, y, w, h, (Color){50,60,70,255});
+}
+
+void DrawMetalKey(int x, int y, float scale, bool glow) {
+    Color baseGold = glow ? (Color){255, 230, 120, 255} : (Color){180, 150, 70, 255};
+    Color darkGold = glow ? (Color){210, 170, 60, 255}  : (Color){120, 90, 40, 255};
+    Color highlight = glow ? (Color){255, 255, 230, 255} : (Color){220, 200, 120, 255};
+    Color shadow = (Color){40, 30, 15, 255};
+    
+    float rOuter = 8 * scale;
+    float rInner = 4.5f * scale;
+    float shaftW = 5 * scale;
+    float shaftH = 26 * scale;
+    
+    float cyRing = y + rOuter;
+    
+    // Top Ring
+    DrawCircle(x, cyRing, rOuter, darkGold);
+    DrawCircle(x, cyRing, rOuter - 1*scale, baseGold);
+    DrawCircle(x, cyRing, rInner, (Color){30,35,40,255}); // Inner hole matches slot bg
+    DrawCircleLines(x, cyRing, rInner, darkGold); // Inner bevel
+    
+    float shaftY = cyRing + rOuter - 1*scale;
+    
+    // Shaft
+    DrawRectangle(x - shaftW/2, shaftY, shaftW, shaftH, baseGold);
+    DrawLine(x - shaftW/2, shaftY, x - shaftW/2, shaftY + shaftH, highlight);
+    DrawLine(x + shaftW/2, shaftY, x + shaftW/2, shaftY + shaftH, shadow);
+    
+    // Upper band
+    float uBandY = shaftY + 3*scale;
+    DrawRectangle(x - shaftW/2 - 1.5f*scale, uBandY, shaftW + 3*scale, 2.5f*scale, darkGold);
+    DrawLine(x - shaftW/2 - 1.5f*scale, uBandY, x + shaftW/2 + 1.5f*scale, uBandY, highlight);
+    
+    // Grip
+    float gripY = uBandY + 3.5f*scale;
+    float gripH = 7*scale;
+    DrawRectangle(x - shaftW/2 - 1*scale, gripY, shaftW + 2*scale, gripH, darkGold);
+    // Criss-cross
+    DrawLine(x - shaftW/2, gripY, x + shaftW/2, gripY + gripH, shadow);
+    DrawLine(x + shaftW/2, gripY, x - shaftW/2, gripY + gripH, shadow);
+    DrawLine(x - shaftW/2, gripY + gripH/2, x + shaftW/2, gripY + gripH, shadow);
+    
+    // Lower band
+    float lBandY = gripY + gripH + 1.5f*scale;
+    DrawRectangle(x - shaftW/2 - 1.5f*scale, lBandY, shaftW + 3*scale, 2.5f*scale, darkGold);
+    DrawLine(x - shaftW/2 - 1.5f*scale, lBandY, x + shaftW/2 + 1.5f*scale, lBandY, highlight);
+    
+    // Tip
+    DrawCircle(x, shaftY + shaftH, shaftW/2, baseGold);
+    
+    // Bit
+    float bitY = shaftY + shaftH - 7*scale;
+    float bitW = 9 * scale;
+    float bitH = 7 * scale;
+    
+    DrawRectangle(x + shaftW/2, bitY, bitW, bitH, baseGold);
+    DrawRectangleLines(x + shaftW/2, bitY, bitW, bitH, shadow);
+    
+    // Notch
+    float notchY = bitY + 2*scale;
+    float notchW = 4 * scale;
+    float notchH = 3 * scale;
+    DrawRectangle(x + shaftW/2 + bitW - notchW, notchY, notchW+1, notchH, (Color){30,35,40,255});
+    
+    DrawLine(x + shaftW/2, bitY, x + shaftW/2 + bitW, bitY, highlight);
+}
+
 // ===== TITLE SCREEN =====
 void UpdateTitle() {
     DrawScene(0);
@@ -52,13 +173,9 @@ void UpdateM1() {
         // Show appropriate room base: key picked (scene 59), computer on (18), or default (16)
         int roomScene = m1HasKey ? 59 : (m1CompOn ? 18 : 16);
         DrawScene(roomScene);
-        // Draw inventory box bottom-right
-        DrawRectangle(SCREEN_W-80,SCREEN_H-80,70,70,(Color){0,0,0,150});
-        DrawRectangleLines(SCREEN_W-80,SCREEN_H-80,70,70,(Color){100,200,255,200});
+        // Key logic (selection is only possible in base room)
         if(m1HasKey) {
-            Color kc = m1KeyGlow ? YELLOW : (Color){200,200,100,255};
-            DrawText("KEY",SCREEN_W-72,SCREEN_H-60,16,kc);
-            if(DrawSelectable(SCREEN_W-80,SCREEN_H-80,70,70)) m1KeyGlow=!m1KeyGlow;
+            if(DrawSelectable(SCREEN_W-80,SCREEN_H-90,70,90)) m1KeyGlow=!m1KeyGlow;
         }
         // Selectable objects - positions matched to actual room image
         if(DrawSelectable(30,265,175,165)) { // Computer screen (left monitor)
@@ -307,13 +424,15 @@ void UpdateM1() {
     } break;
     default: break;
     }
-    // Inventory always visible in M1
+    // Inventory always visible in M1 (Metal panel design)
     if(curState>=STATE_M1_ROOM_BASE1 && curState<=STATE_M1_MAP && curState!=STATE_M1_HOUSE) {
-        DrawRectangle(SCREEN_W-80,SCREEN_H-80,70,70,(Color){0,0,0,150});
-        DrawRectangleLines(SCREEN_W-80,SCREEN_H-80,70,70,(Color){100,200,255,200});
+        int invX = SCREEN_W-80;
+        int invY = SCREEN_H-90; // Taller box
+        DrawMetalInventoryBox(invX, invY, 70, 90);
+        
+        // Draw key inside the inner slot
         if(m1HasKey) {
-            Color kc=m1KeyGlow?YELLOW:(Color){200,200,100,255};
-            DrawText("KEY",SCREEN_W-72,SCREEN_H-60,16,kc);
+            DrawMetalKey(invX + 35, invY + 12, 1.0f, m1KeyGlow);
         }
     }
 }

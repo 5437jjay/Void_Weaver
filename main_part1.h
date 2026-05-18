@@ -32,6 +32,7 @@ bool m1DeskOpen = false;
 bool m1PhotoSel = false;
 bool m1HasKey = false;
 bool m1KeyGlow = false;
+Texture2D armsTex; // Separated arms/handle for vehicle animation
 bool m1MirrorOpen = false;
 bool m1LetterRead = false;
 bool m1CompLogged = false;
@@ -184,6 +185,12 @@ void LoadAllResources() {
             scenes[i] = LoadTexture("system screen..jpeg");
         } else if (i == 20 && FileExists("desk passcode.jpeg")) {
             scenes[i] = LoadTexture("desk passcode.jpeg");
+        } else if (i == 34 && FileExists("vortex_mirror_clean.png")) {
+            scenes[i] = LoadTexture("vortex_mirror_clean.png");
+        } else if (i == 39 && FileExists("bg_closed.png")) {
+            scenes[i] = LoadTexture("bg_closed.png");
+        } else if (i == 40 && FileExists("bg_open.png")) {
+            scenes[i] = LoadTexture("bg_open.png");
         } else if (i == 54 && FileExists("mod 4 passcode.jpeg")) {
             scenes[i] = LoadTexture("mod 4 passcode.jpeg");
         } else if (i == 59 && FileExists("room_key_picked.png")) {
@@ -192,6 +199,12 @@ void LoadAllResources() {
             scenes[i] = LoadTexture(path);
         }
     }
+    
+    // Load separated transparent arms image
+    if (FileExists("arms_transparent.png")) {
+        armsTex = LoadTexture("arms_transparent.png");
+    }
+    
     // Load Times New Roman font at multiple sizes for crisp rendering
     gameFont = LoadFontEx("game_assets/times.ttf", 48, NULL, 0);
     SetTextureFilter(gameFont.texture, TEXTURE_FILTER_BILINEAR);

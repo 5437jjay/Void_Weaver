@@ -17,20 +17,34 @@ void UpdateM2() {
         if(stateTimer>3.0f) ChangeState(STATE_M2_VORTEX);
     } break;
     case STATE_M2_VORTEX: {
-        // Vortex effect - rotate and scale scene
-        vortexAngle += GetFrameTime()*200;
-        vortexScale = 1.0f - stateTimer*0.3f;
-        if(vortexScale<0.1f) vortexScale=0.1f;
-        BeginBlendMode(BLEND_ADDITIVE);
-        DrawTexturePro(scenes[34],
-            {0,0,(float)scenes[34].width,(float)scenes[34].height},
-            {640,360,(float)(SCREEN_W*vortexScale),(float)(SCREEN_H*vortexScale)},
-            {(float)(SCREEN_W*vortexScale/2),(float)(SCREEN_H*vortexScale/2)},
-            vortexAngle, WHITE);
-        EndBlendMode();
-        pageTimer+=GetFrameTime();
-        DrawCinText("The mirror reveals a digital realm beyond...",pageTimer,0.04f,SCREEN_W);
-        if(stateTimer>4.0f) ChangeState(STATE_M2_TTT_INTRO);
+        // Draw the static clean image
+        DrawScene(34);
+        pageTimer += GetFrameTime();
+        
+        // The message to animate
+        const char* msg = "Whoever wants to travel through\nthe snow region of Greenland\nhas to earn the rights to do it\nby accomplishing the task\nahead of you.";
+        
+        int totalChars = 136; // actual length of message
+        int charsToDraw = (int)(pageTimer / 0.03f); // typewriter speed
+        if(charsToDraw > totalChars) charsToDraw = totalChars;
+        
+        char buf[256];
+        strncpy(buf, msg, charsToDraw);
+        buf[charsToDraw] = '\0';
+        
+        // Draw text inside the light blue box (right of the robot head)
+        DrawText(buf, 580, 310, 16, (Color){60, 75, 95, 255});
+        
+        // Show continue prompt when text finishes
+        if(charsToDraw >= totalChars) {
+            float pulse = (sinf(animTime*3)+1)*0.5f;
+            DrawText("Click to continue...", 580, 410, 14, 
+                (Color){100,120,150,(unsigned char)(100+pulse*155)});
+            
+            if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                ChangeState(STATE_M2_TTT_INTRO);
+            }
+        }
     } break;
     case STATE_M2_TTT_INTRO: {
         DrawScene(35, 1.0f, true);
@@ -225,12 +239,50 @@ void UpdateM2() {
 void UpdateM3() {
     switch(curState) {
     case STATE_M3_COCKPIT: {
+        // Draw closed door background
         DrawScene(39, 1.0f, true);
-        if(DrawSelectable(400,100,480,520)) StartSlide(STATE_M3_WALL_SLIDE,3);
+        
+        // Draw the arms overlay at original height
+        if(armsTex.id > 0) {
+            DrawTexturePro(armsTex,
+                {0,0,(float)armsTex.width,(float)armsTex.height},
+                {0,0,(float)SCREEN_W,(float)SCREEN_H},
+                {0,0}, 0.0f, WHITE);
+        }
+        
+        // Click the handle to push it down
+        if(DrawSelectable(300, 400, 680, 250)) ChangeState(STATE_M3_WALL_SLIDE);
     } break;
     case STATE_M3_WALL_SLIDE: {
+        float duration = 5.0f;
+        float progress = stateTimer / duration;
+        if(progress > 1.0f) progress = 1.0f;
+        
+        // Smooth easing function
+        float ease = progress * progress * (3.0f - 2.0f * progress);
+        
+        // Draw open snow background
         DrawScene(40, 1.0f, true);
-        if(stateTimer>2.0f) ChangeState(STATE_M3_FLOAT_UP);
+        
+        // Draw closed background sliding UP
+        if(progress < 1.0f) {
+            float slideDist = SCREEN_H; // Move fully up
+            DrawTexturePro(scenes[39],
+                {0,0,(float)scenes[39].width,(float)scenes[39].height},
+                {0, -slideDist * ease, (float)SCREEN_W, (float)SCREEN_H},
+                {0,0}, 0.0f, WHITE);
+        }
+        
+        // Draw arms floating DOWN to match Image 2's height
+        if(armsTex.id > 0) {
+            float armPush = 180.0f * ease; // Push down by 180 pixels
+            DrawTexturePro(armsTex,
+                {0,0,(float)armsTex.width,(float)armsTex.height},
+                {0, armPush, (float)SCREEN_W, (float)SCREEN_H},
+                {0,0}, 0.0f, WHITE);
+        }
+        
+        if(stateTimer > duration + 1.0f) StartSlide(STATE_M3_FLOAT_UP, 1);
     } break;
     case STATE_M3_FLOAT_UP: {
         DrawScene(41, 1.0f, true);
