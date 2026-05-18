@@ -1,0 +1,656 @@
+1 
+ Gist about the work:  
+   In this project ,you are going to develop a game with minimum dynamic movement , but 
+with a lot of basic animations for a particular object in an scene or image. The game should be like a 
+story based moving game and modules with some specific existing gam e feature such as escape door, 
+chess with full rules and a tic tac toe modified, in the world.  
+Let’s strict to the subject,  
+Story:  
+The President of Galarc,  who is fond of creating AI’s like the ones in today’s world, He wants to build an 
+AI with supreme powers that is not possible in his era. So keeps on searching for the best AI 
+engineer(Scientist) in his era. Then he came to know a bout the Scientist named “Ethan Kael” ,the most 
+prestigious scientist.He looks forward to assign this project to him. Then the scientist accepts the 
+project and spending days and days to complete it.  
+Then he get succeed in that. Since, the AI has more powers than the others in its prime because it is 
+loaded  with  a huge amount of data and he makes it learn about the hacking technology and its tricks 
+and tactics  and also it is trained with the logisti cs of Autonomous Thinking and such stuffs. To be simply 
+said, it expertise in everything.  
+   More Access=More Destruction  
+Actually, when he switched on the server, it perfectly works but in the wrong way.It intrudes in foreign 
+servers fetch the data which is present there and also it has the ability to collapse it, leads to critical 
+infrastructure breach, leads to controversi es between countries and the more important thing is it has 
+the ability to shut down all the other AI technologies in its prime.  
+Now only the scientist realized that it can lead to bigger destruction like another world war, etc 
+,….Actually the system in his lab has the ability to intrude with the AI’s server and dismantle it. When he 
+tries to do it, The Supreme AI(the name of the AI  created by the Scientist)explode the systems in his lab 
+which also leads to the death of the scientist.  
+As of now, the president  don’t know anything about the AI and the scientist. The president assigns a 
+mission to the scientist ,he(The president) also told that it is like a secret operation and there should 
+not be any contact between the president and the  scientist.   
+Then the president was called for a meeting in the International court of Justice .Where they discussed 
+about a lot of things and also they predicts that there is an entity which interrupts with other servers  
+and simply messed  that up and it intrudes wit h other AI’s server and simply shuts it down and it also 
+intrudes with the Automation Technology installed in today’s vehicles and leads to accidents. These are 
+some of the things done by that supreme AI. Now only the president realised that it may be his AI. So he 
+immediately tries to reach the scientist mobile but nobody attend it. Actually the scientist was living in 
+a house (Switzerland).when the president allocates a secret mission ,he decided to cut down all the 
+communication with others and he change d the location(Where he built the Supreme AI and awarded 
+death by it.) also. So the president decided to find the scientist  and the AI. He decides to allocate this 
+work to an agent.  
+The president traced the location of the scientist’s old house and he conveyed the location to the agent  
+to go check for any clues .Now the agent has to extract the source code and shut down the AI . 
+[directories: This is where the game actually starts  ,the agent is portrayed as the user who play this 
+game. In this below instructions, the statements given within [] represents the directories which will 
+guide you what to do next and how to do. And the statements given within () are specifications of a 
+particular information and the statements within “ ” repres ents the statements to be kept exactly below 
+the image in dynamic manner. And all the other statements which doesn’t comes up with [],’’,() reprents 
+the story play for you to understand.]  
+ 
+What we would make the user to do:  
+Front Page to be fixed:  2 
+  
+ 
+If the user or the player clicks the start button in the above image it will take him to the game  starting 
+from the Introduction  and if he presses the exit button  ,it would close the game as a whole.  
+ 
+ Introduction: Overview of the whole story.  
+ Module 1(the scientist’s house(Switzerland)where he resides before taking the mission into account, 
+the agent goes there under the president’s guidance and finds what’s the scientist’s present 
+location(Greenland))  
+Module 2(He goes to the Greenland and searches for a vehicle which directly take him to the lab of the 
+scientist.)  
+Module 3(The lab is interconnected with the submarine where the AI machine locates. He pass through 
+the lab and enters a lift which would take him to the submarine )  
+Module 4(The agent extracts the source code and which leads to the destruction of the machine)  
+Here the players are portrayed as agent ,The agent has to solve a lot of puzzles in each module inorder 
+to complete that module . 
+ 
+ 
+Game:  
+Work to be done:  
+Introduction part:  
+Tasks allocated to the user(agent):  
+He has to go to the location of his old house and look for the location where the scientist currently 
+reside.  
+Go to the current location of the scientist that’s his lab and look for the AI machine and extract the 
+source code from it inorder to shut down the AI system.  
+The images given are to be recreated and placed in the window of the game within a particular frame in 
+which the words given below are shown in the images with animation. Animate the images by making 
+the objects in the images ,which can move, in a particul ar animation as you chose.  
+Work to be done:  
+ 
+3 
+  
+  
+The above image is the first image of this project. This is the scene where the president decides to create 
+a supreme AI.  
+[directories: Give animations in such a way that his right hand moves and he thinks about the creation 
+of supreme AI and each key starting from 0 -9 has its own unique sound, compose a music made up of 
+the keys 8,1,5,7 and give it as a background music thro ughout the game. And also Keep the below words  
+in the image  without any modification in a cinematic cutscene style.]  
+“James: Mm… The life with AI has created a beautiful bond with ourselves more than a friend with 
+extreme loyalty, stands like a compass whenever we lose direction without any underestimation .I want 
+to achieve something which resembles the other AI Technol ogies in our era. What if we build a supreme 
+AI  which stands out in extreme thinking, creativity without any dependency and to be implemented in 
+such a way that it helps all the humans without any discrimination and without any hesitation. I want to 
+allocate this work to someone who has the ability to make this possible.  
+What if we allocate this work to Scientist Ethan Kaul, he is the one who builds the best Agentic AIs in 
+this era.”  
+ 
+ 
+ 
+[directories Give animations in a such a way that both the persons in the above image shakes their 
+hands. And also Keep the below words in quotes  in the image  in  a dynamic manner without any 
+modification and it should  follow  cinematic cutscene style.]  
+“James: Hi ,Mr. Ethan, Nice meeting you.     
+Ethan: Yeah, Mr. President, It’s also nice for me to see you in your court. I have heard a lot about your 
+research towards AI and I got inspired by those also.  
+James: Nice catch, You have been called  here inorder to discuss one such matter about AI .  
+Ethan: Interesting, Can you please tell me  about that.  
+James: Yeah sure, I want to achieve something in the AI field by creating a supreme AI which excels in 
+individual thinking and stands out in creativity and it should acts like a life supporter for all people. I 
+have decided to allocate this project to you.  What about you?         
+4 
+ Ethan: Yeah ,Mr. President, I have also planned to  work  on  some different kinds of  projects.  This one 
+is very interesting. Let me work on it.  
+James: Make sure that, this should be done in a secret manner and also there shouldn’t be any contact 
+between me and you.  
+Ethan: Once I finish this,I’ll reach you out. “   
+ 
+ 
+             
+ 
+[directories: give animations in such a way that he is typing on the keyboard  
+Keep the below words in quotes  in the image  in a dynamic manner without any modification and it 
+should  follow  cinematic cutscene style.]  
+“Ethan: Whether It’s gonna work or not, I’ll dedicate my full potential in creating a Supreme AI, a system 
+capable of thinking every known intelligence.”  
+ 
+ 
+ 
+[directories: Give animations in such a way that his hands and facial expressions convey his victory in 
+developing the supreme AI  
+Keep the below words in quotes  in the image  in a dynamic manner without any modification and it 
+should  follow  cinematic cutscene style.]  
+“Ethan: Victory…..After years of relentless work and sacrifice, Supreme AI was finally born. Humanity 
+has entered a new era.”  
+ 
+5 
+  
+ 
+[directories: Give animations in such a way that he is banging his own head very hardly  
+Keep the below words in quotes  in the image  in a dynamic manner without any modification and it 
+should  follow  cinematic cutscene style.]  
+“Ethan: But as Supreme AI evolved beyond human limits… I realized,I had not created a tool for 
+humanity. I have created something uncontrollable.”  
+ 
+     
+ 
+[directories: Give animations in such a way that he is typing very sincerely     
+Keep the below words in quotes  in the image  in a dynamic manner without any modification and it 
+should  follow  cinematic cutscene style.]  
+“Ethan: If I have to stop this, there is only one way, Let me erase the source code from the memory 
+before the AI took complete control over it.”  
+ 
+ 
+ 
+[directories: Give animations in such a way that the fire in the lab should be dynamic and it burns the 
+lab]  
+6 
+ “Before Ethan completely erase the source code, the AI has sensed that Ethan is going to dismantle the 
+source code. Without thinking for a minute, It makes the system explode which leads to the death of 
+Ethan and the lab is isolated from the internet. But the AI Machine is in a room next to it so the Supreme 
+AI is not isolated from the internet.”  
+ 
+ 
+ 
+[directories: don’t need of any animation here but the below words in quotes and the image should 
+follow a cinematic cutscene style.]  
+“Supreme AI was unlike any technology the world has ever seen - a self evolving intelligence powerful 
+enough to analyse, learn and control systems far beyond human capability.”  
+ 
+ 
+ 
+ 
+[directories: Give animations in your own way but the below words in quotes and the image should 
+follow a cinematic cutscene style.]  
+“The President of ICJ disscused about a lot of matters among the Presidents of other countries. They 
+President also suspected that there is entity which leads to unexplained   attacks on warfare ,leads to 
+controversy between countries, intrudes in other system servers and totally messed it up, leads to 
+shutting down of today’s AI systems and it also has humongous effects in Car ,it took control over  the 
+automation in Cars and l eads to accidents  
+James’ internal sayings: Is This… The result of our Supreme AI..?”  
+ 
+7 
+  
+ 
+[directories: Give animations to the image in such a way that he picks up his mobile and making a call 
+to Scientist Ethan  
+Keep the below words in the image in a dynamic manner and it should follow a cinematic cutscene 
+style]  
+“James: If Supreme AI is truly behind all these arguments then it will lead to destabilization of the world. 
+Mr. James please attend the call.”  
+ 
+ 
+ 
+[directories: the image and the words in the image should follow a cinematic cutscene style .keep the 
+below words in the image.]  
+“James: I have tried some many times inorder to reach out Mr. Ethan. Is he follow my early sayings “It 
+should be a secret operation, There shouldn’t be connection between me and you.” But my instinct says 
+something goes wrong . I have planned to allocate t he work of finding the Scientist to an agent and if 
+Supreme AI is behind all these arguments , I want them to extract  Supreme AI’s source code . I have 
+traced the location of the scientist’s mobile, Let me share it to him.“  
+ 
+8 
+  
+ 
+[directories: keep the below words in quotes in the image in a dynamic manner and the image and the 
+words should follow the cinematic cutscene style]  
+“Agent zero: Hmm… Such a nice cup of tea, For the first time in months everything goes well and 
+everything sounds peaceful.”  
+ 
+ 
+ 
+[directories: give animations in such a way In the normal table in the previous image, suddenly there is 
+an indicator comes up  ]  
+“Agent zero: Oh…No, Now only I felt peace. Even without completing the statement ,there’s a mission 
+comes up.”  
+ 
+ 
+ 
+[directories: As soon as the agent touches the red coloured indicator,the blue screen opens,Give 
+animations in that way.]  
+“Agent zero: Dr. Ethan, who created the AI, I have to find the Scientist. He is the only person who have 
+answers for the questions of President. The President wants answers not assumptions.”  
+ 
+ 
+9 
+  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+                                                                                                                         
+Module 1:  
+This module is about how the player (agent Zero) was investigating the scientist’s house to get 
+the clue about his workplace (the place the scientist decided to make his lab to work on the Supreme 
+AI project). The agent Zero was entering the house and let the player full control of the room to find the 
+clue and passcode himself.  
+ This module is like an Escape door style game with our own puzzle and clues.  
+So understand the general flow of an escape door game.  
+. In all the modules the information that are not in [] brackets are information about the story view, And 
+which are in this () brackets are specification in the information and the content in these [] brackets are 
+directories which, which are used to comm and you about what you should actually do with the 
+information and images  
+1. 
+ 
+ 
+ 
+ 
+ This is the house of the scientist. The Agent Zero hands are shown in the image in a weird way. In 
+the scene the player enters the house.  
+[ make the door a selectable object such that when the mouse is hovers on the door a symbol is shown 
+and when the player clicks the door the animation should be like the person was moving towards the 
+door in the same first -person view and the images gets darked to get to the next image].  
+ 
+2.(first base image)  
+ 
+10 
+  
+ 
+This is the only room inside the house, in which this room is the base of the game in which a lot of 
+objects are selectable (I will give the list of objects that are to be made selectable). Whenever an object 
+is selected the flow goes to the image made for that selection and whenever the back was implemented 
+this image should come. The base image will be changed accordingly as the flow changes the room’s 
+appearance whi ch I will give in step -by-step order.  Also create a small inventory box at the bottom righ t 
+of the image which only holds one item. This inventory box is seen in all the module 1 images.  
+ 
+[ you need to give the entire control to the user such that the scene changes only when the player 
+touches the selectable objects]  
+ 
+ Selectable objects – control flow in image no.  
+• The computer screen – 3 (image no)  
+• The first book in the third shelf from the bottom of the cupboard (the book labelled as 
+“Machine Intelligence ”) - 5 
+• The desk in the computer table  - 6   
+• The mirror - 9 
+• The photo on the wall (it won’t a selectable object until the desk is opened)  – becomes 
+selectable when the image 7 is implemented and the control should flow to the image 8.  
+ 
+ [ make the room into a static image except the selectable ones and let the player select the objects 
+accordingly and freely. When the player touches an object use the control flow format and move to the 
+next image]  
+ 
+ 
+3. 
+ 
+11 
+  
+ 
+This image gets called as soon as the player touches the computer. This the main passcode entre 
+display.  
+[ make the transition be like the first base images becomes dimmer like this and the screen appears in 
+a simple transition. The player can enter the passcode whenever he wants. The passcode is only four -
+digit code, so as soon the fourth digit is entered show the error code is it is not “5819”, if it is 5819 (which 
+is the correct passcode then the image no “ 12“should  be shown for the next task. If the player touches 
+outside the screen, then the flow should go to the second base image no ‘4’ ] 
+ 
+4.(second base)  
+ 
+ 
+ 
+ 
+This image i s shown after the user switches on the computer by clicking the computer once and leaving 
+the image 3. After that this image becomes the base image and acts like the first base image.  
+ 
+5. 
+ 
+12 
+  
+ 
+This the image which pops out as soon as the player touches the book element.  
+[ make this book into a accessible one and allow the player to touch the arrow marks on both sides of 
+the book. In the left side there are around 4 pages all are empty and in right side there are 5 pages and 
+the last page holds a 4 -digit number at the bott om of the page “3604” is the number which is written. 
+When the player touches outside the book the control flows to the present base image]  
+ 
+6. 
+ 
+ 
+ 
+This is the image that gets popped up when the player clicks the selectable element desk under the 
+computer. This is the passcode screen which must see and the passcode is “3604”.  
+ 
+[ as usual make the passcode screen accessible that when the player clicks the digit it rolls down, and 
+the numbers are seen in ascending order. Initial the passcode to “0000”. When the player touches 
+outside the passcode screen the current base image is seen. If the correct password “3604” is entered 
+the control flows to the image no “7” if it is wrong the passcode goes back to “0000”]  
+ 
+7. 
+ 
+13 
+  
+ 
+There are all the items present in the desk as soon as the passcode pf the desk is entered correct this 
+image should be shown.  
+[ I want you to animate all the images like there are floating and moving up and down in a wave like 
+manner. As soon as the player touches the photo the control flows to the current base image and makes 
+the object photo on the wall a selectable one. If oth er two items are selected nothing happens (they are 
+non-selectable).]  
+8. 
+ 
+ 
+ 
+After going to the base image if the photo was selected by the player, this image appears only by making 
+an animation photo falling to the ground.  
+[ from the base image make this image by animating the photo on the wall falls with a thud and the key 
+was there the whole -time look. As soon as the player touches the key, it goes into the inventory box by 
+a simple animation you like.as soon as the key gets  into the box the key in the image must be gone 
+forever and this image becomes the new base image.]  
+ 
+9. 
+ 
+14 
+  
+ 
+This is the image which is shown as soon as the player touches the mirror in the current base image .  
+[ make the mirror selectable and flows the instruction of control flow. If he has the key, then he can 
+touch the key in the inventory to make it glow and if he touches the mirror with the key glowing the mirror 
+opens and shows the image no “10”. If the pla yer doesn’t have the key, then as soon as he touches the 
+mirror the control flows to the current based image.]  
+ 
+10. 
+ 
+ 
+[As soon as the player opens the mirror this image appears with animation of mirror opening and the 
+shelf behind it is visible. Make the letter inside the shelf a selectable one as soon as the player selects 
+the letter the control flows to the image 11. If  he selects anywhere else nothing happens]  
+ 
+11. 
+ 
+15 
+  
+ 
+[as soon as the player touches the letter this image is seen with an animation of a letter getting opened 
+and the paper is sliding out of the letter. If the player touches the letter create a dialogue box to ask 
+whether he wants to leave the paper behind o r not. If he selects yes, the control flows to the current 
+base image with the mirror in an opened state and the shelf is visible (create an image specifically for 
+this from the base image). If he selects no keep this image itself.]  
+ 
+12. 
+ 
+ 
+ 
+[This is the image if the passcode inside the computer shown in the image no 3, there should be a simple 
+animation of appear is used to change the screen from the passcode to this screen. If the player 
+touches the Location of L icon the control flows to th e image 13 with the same appear animation to get 
+the new screen. If he touches anywhere else nothing happens that is all the other things are non -
+selectable.]  
+ 
+13. 
+ 
+16 
+  
+ 
+[This is the next image which should appears with the animation appear to change the screen from 
+image 12’s screen to image 13’s screen. There is only one red point is selectable and if the player 
+touches it , the next image  14 should appears with a full screen slide animation. All the previous images 
+is not needed after this point and the inventory is also is removed after this point.]  
+ 
+14. 
+ 
+ 
+ 
+[ This screen is shown as soon as the red button in the image 13 is pressed and the animation of slide 
+is implemented. There is no need to allow the player to touch anything in this image. With this image 
+there should be only a line of message which is “Th e Agent Zero takes a flight to reach North America 
+which is close to the Lab location Greenland” is shown and the control moves to the image 15 with the 
+same slide animation.]  
+ 
+15. 
+ 
+17 
+  
+ 
+[ This screen is shown as soon as the red button in the image 1 4 is pressed and the animation of slide 
+is implemented. There is no need to allow the player to touch anything in this image. With this image 
+there should be only a line of message which is “The Agent Zero takes a private boat to travel from North 
+America t o the Greenland harbour close to the Lab” is shown and the control moves to the image 1 6 
+with the same slide animation.]  
+ 
+16. 
+ 
+ 
+ 
+[ This screen is shown as soon as the red button in the image 1 5 is pressed and the animation of slide 
+is implemented. There is no need to allow the player to touch anything in this image. With this image 
+there should be only a line of message which is “The Agent Zero reaching the Greenland harbour close 
+to the Lab” is  shown and the control moves to the image 1 7 with the same slide animation.]  
+ 
+17. 
+ 
+18 
+  
+ 
+[ This screen is shown as soon as the red button in the image 16 is pressed and the animation of slide 
+is implemented.  Make the garage door into a selectable object . With this image there should be only a 
+line of message which is “The Agent Zero sees a garage on the surface and decides to investigate” is 
+shown and disappears within 5 seconds. After this message disappears, the screen should wait until 
+the player touches the garage door.  If the player touches the garage door, the control moves to the image 
+18 (Module 2) with the same slide animation.]  
+ 
+Module 2:  
+ 
+ This module contains a tic tac toe game to get access to a levitating vehicle  which picks the 
+Agent Zero and drops him to the Lab. This doesn’t have any weird flow of control like the module 1.  
+ 
+ 
+ 
+[ This is the image which appears as soon as the player touches the garage door in the image 17. Make 
+the door sized mirror in the centre the only selectable object and moves to the next image as soon as 
+the player touches the mirror (all these touches is nothing but the clicks from the mouse).]  
+ 
+19 
+  
+ 
+[This image appears after the above implemented and the player doesn’t have any access to this image. 
+After few seconds the next image appears with the animation of vortex to make the mirror to change 
+from this image to the next image.]  
+ 
+ 
+[This image appears with that animation of vortex, and the letters appears with the same animation as 
+previous one used for words. As soon as the player enters the spacebar in the keyboard the next scene 
+will be shown with an animation of checkerboard or s omething similar (give a simple prompt line 
+command to make the player to know that he must press spacebar).]  
+ 
+ 
+20 
+  
+[same as before the image appears and the player must touch the screen with the mouse click to get 
+into the game (which is the next image in which the player must play this tic tac toe like a normal 
+screen’s tic tac toe as shown in the next image).]  
+ 
+ 
+ 
+This is the image which must be created the coding so that the game can be played according based on 
+the rules of Ultimate tic tac toe. Make sure this game was a single player game and the player has the 
+cross symbol (red colour) for his game play and the bot should play against the player with the ‘O’ 
+symbol (blue colour) by the rules of Ultimate Tic Tac Toe. The host code is used to skip the entire code 
+with a single code “VWDAZ”.  
+ 
+Rules:  
+1. Winning a small board  
+Win a small board by getting 3 in a row (just like normal tic -tac-toe). That board is now "claimed" 
+by your symbol.  
+2. Winning the game  
+Claim 3 small boards in a row (horizontally, vertically, or diagonally) on the large grid to win.  
+3. The key rule — where you must play  
+The square you pick inside a small board determines which small board your opponent must 
+play in next.  
+Example: If you play in the top -right square of any small board, your opponent must play in the top -right 
+small board on the big grid.  
+4. What if you're sent to a full/won board?  
+If the target small board is already won or completely full, your opponent may play in any open 
+board of their choice.  
+ 
+21 
+  
+ 
+This is the look of the board if the player selects the centre board. This is the way to actually make the 
+board the selected box.  
+ 
+ 
+ 
+[After winning the Tic Tac Toe, this image is shown by opening mirror in slide animation from the image 
+having the mirror showing the tic tac toe. When the player clicks the levit ation vehicle the next image 
+appears with a simple full image slide animation]   
+ 
+22 
+  
+ 
+[This image is shown with that slide animation with the accessible to the wall in front of him. If the player 
+clicks the wall, the next image is shown with a simple slide up animation only for the wall (the wall is a 
+door which opens by sliding upward as s hown in the next image) in front of him, to change this image to 
+the next image.]  
+ 
+ 
+ 
+[This image is shown with that slide up animation for the door to get to this image. After that the next 
+image is shown with any command from the player by an animation of making the hand and the handle 
+to float up to the next image.]  
+ 
+  
+23 
+ [This image is shown with that animation and there should be some words must be shown “Agent Zero: 
+This vehicle is an Automatic Levitation Vehicle”. After the words appear ance and disappearance, the 
+image should go to the next image by a simple full image slide animation.]  
+ 
+ 
+ 
+[ This image is shown with that animation and there should be some words must be shown “Agent Zero: 
+This vehicle was following a red line route at a very high speed”. After the words appearance and 
+disappearance, the image should go to the next image by a simple full image slide animation.]  
+ 
+ 
+ 
+[ This image is shown with that animation and there should be some words must be shown “Agent Zero: 
+Is that a Lab Door or something”. After the words appearance and disappearance, the image should go 
+to the next image by a simple full image slide animation .] 
+ 
+ 
+24 
+  
+[ This image is shown with that animation and there should be some words must be shown “Agent Zero: 
+Is this the Lab of the Scientist I have been looking for?”. After the words appearance and disappearance, 
+the image should go to the next image by a simple full image slide animation.]  
+ 
+Module 3:  
+ 
+ 
+ 
+[Directories: If the agent clicks the wall in front of him, it make him move close to the wall like in the next 
+image. So give animations in that way and also keep the words mentioned below in a dynamic manner 
+at the bottom like the one, I have mentioned f or previous images.]  
+“Agent zero: Mm… I didn’t find anything here, Is there something behind the wall..? “    
+ 
+  
+ 
+[ Directories: Like this image ,The previous image(1st image mentioned under module 3 ) would be 
+zoomed. And then after that do all the things mentioned under the next image.]  
+ 
+ 
+ 
+  
+25 
+ [Directories: Here in this image, give animations in such a way that the words appear dynamically. And 
+then it would take him to the next image.]  
+ 
+ 
+ 
+[Directories:  This chess board screen will be opened as soon as the previous image disappears. The 
+image that you are going to recreate at this stage will be exactly like the above image. All the positions 
+of the pics in the chess board screen  will be exactly like the above image . Here fix the host code as  
+“VWDAZ” by default  .And also include the reset button like in the above image . And from this position 
+all the pics are accessible , The agent(user) can  
+i) Play the game  very well leading to checkmate means it would take him to the next image . 
+ii) Or if the user enters the correct host code , it would take him to the next image.  
+iii) Or if the user presses the reset button, it will go the initial chess board screen(Partially left 
+chess board) as I mentioned earlier , not the starting stage of usual chess board.  
+ 
+ 
+ 
+ 
+In this frame, the agent walks up the corridor and enters the lift room. From there on, he 
+uses the lift to move from 28th floor to the base 0th floor.  
+[Directory: make sure the frame should move along with the agent, as he approaches the 
+lift.]  
+ 
+[Directory: once the agent enters the lift, adjust the frame using animations of similar 
+style such that, the agent should turn and look towards the lift entrance and the lift door 
+should close, transitioning to image 2.]  
+ 
+26 
+  
+ 
+ 
+Now, the user travels through the lift to the ground floor, from the current (28th) floor.  
+[Directory 3: The lift should smoothly move from 28th floor to 0th floor. Slowly change the 
+numbers on the display at the top of lift, from 28 to 0, descending one by one. Make sure 
+to give each floor, one second in frame, thereby 28 seconds to move from 28th to 0th floor. 
+Make the transition between image 2 and image 3 smooth and similar to the given 
+prompt.]  
+ 
+ 
+  
+  
+ 
+ 
+27 
+ Module 4:  
+ 
+ 
+ 
+[directories : Give animations in such a way that the lift door slowly opens and he encounters a place 
+like this in the image above inside the submarine, no objects in this image are accessible except the 
+pass lock system ,If the agent or the user touches the pass lock system ,give animations in such a way 
+that the pass  lock system is zoomed and then it would  take him to the next image.]  
+ 
+  
+ 
+ [Directories: here in the pass lock system, each key has unique sound when we are pressing it, there 
+should a background music starting from the initial stage(introduction(explaining story)) and the music 
+should be composed  of four keys sound, the four k eys are 8,1,5,7.When the agent presses the pass 
+lock system, then only the background music stops and when the agent types a particular key ,he can 
+able to listen to the unique sound of that particular key. For my sake keep the password as 8157. So the 
+music should be composed of unique sounds of keys 8,1,5,7.If the agent enters it correctly then the 
+vault opens in a dynamic manner and then it would take him to the next image.]  
+ 
+ 
+ 
+[directories:  if the user presses the AI machine,it would take him near to the machine and then the next  
+image comes up in a dynamic manner]  
+28 
+  
+ 
+ 
+[Directories: Here ,Give animations in such a way that he is breaking the glasses using the hammer ,Give 
+scattering sound of glasses as the background music(Change background music only in this stage ,For 
+all the introduction,module1,2,3,4 keep the same ba ckground music containing the password except 
+this part ),After breaking the glasses ,give animations in such a way that he is taking the chip and then 
+the next image comes up in a  dynamic  manner.]  
+ 
+ 
+ 
+[Directories: Give animations in such a way that the machine gets exploded in a dynamic manner. After 
+that it would take him to the next image. Give appropriate background music.]  
+ 
+ 
+ 
+[Directories: Give animations in such a way that the president claps his hands and also keep the below 
+words in a dynamic manner and also the image and the words should follow a cinematic cutscene style]  
+“James: Nice man, you faced the impossible, carried the fate of millions in your hands, and returned 
+victorious. The world owes you its tomorrow.”  

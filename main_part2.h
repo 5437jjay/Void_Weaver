@@ -15,7 +15,7 @@ void UpdateTitle() {
 // ===== INTRO CUTSCENES (14 scenes) =====
 void UpdateIntro() {
     int idx = (int)curState - (int)STATE_INTRO_1; // 0-13
-    DrawScene(idx + 1); // scene_01 to scene_14
+    DrawScene(idx + 1, 1.0f, true); // scene_01 to scene_14
     pageTimer += GetFrameTime();
     
     // Skip intro feature
@@ -231,7 +231,7 @@ void UpdateM1() {
 // ===== TRAVEL SEQUENCE =====
 void UpdateTravel() {
     int idx=(int)curState-(int)STATE_TRAVEL_FLIGHT; // 0-3
-    DrawScene(28+idx);
+    DrawScene(28+idx, 1.0f, true);
     pageTimer+=GetFrameTime();
     bool done = DrawCinText(travelTexts[idx],pageTimer,0.04f,SCREEN_W-40);
     if(idx<3) { // Auto advance for first 3

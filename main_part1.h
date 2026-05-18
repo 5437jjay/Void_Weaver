@@ -214,12 +214,25 @@ void UnloadAllResources() {
 }
 
 // ===== DRAW SCENE IMAGE (fills screen) =====
-void DrawScene(int idx, float alpha = 1.0f) {
+void DrawScene(int idx, float alpha = 1.0f, bool cinematic = false) {
     if (idx < 0 || idx >= TOTAL_SCENES) return;
     Color tint = {255,255,255,(unsigned char)(alpha*255)};
-    Rectangle src = {0,0,(float)scenes[idx].width,(float)scenes[idx].height};
-    Rectangle dst = {0,0,(float)SCREEN_W,(float)SCREEN_H};
-    DrawTexturePro(scenes[idx], src, dst, {0,0}, 0, tint);
+    
+    if (cinematic) {
+        // Subtle cinematic zoom in (Ken Burns style)
+        float zoom = 1.0f + (stateTimer * 0.02f); // Zoom in 2% per second
+        if (zoom > 1.15f) zoom = 1.15f; // Cap at 15% zoom
+        float destW = SCREEN_W * zoom;
+        float destH = SCREEN_H * zoom;
+        DrawTexturePro(scenes[idx],
+            (Rectangle){0, 0, (float)scenes[idx].width, (float)scenes[idx].height},
+            (Rectangle){SCREEN_W/2.0f - destW/2.0f, SCREEN_H/2.0f - destH/2.0f, destW, destH},
+            (Vector2){0, 0}, 0.0f, tint);
+    } else {
+        Rectangle src = {0,0,(float)scenes[idx].width,(float)scenes[idx].height};
+        Rectangle dst = {0,0,(float)SCREEN_W,(float)SCREEN_H};
+        DrawTexturePro(scenes[idx], src, dst, {0,0}, 0, tint);
+    }
 }
 
 // ===== DRAW TEXT WITH OUTLINE (for visibility on images) =====
