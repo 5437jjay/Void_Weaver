@@ -16,7 +16,7 @@
 // ----- Screen dimensions -----
 const int SCREEN_W = 1280;
 const int SCREEN_H = 720;
-const int TOTAL_SCENES = 59;  // Total scene images from PDF
+const int TOTAL_SCENES = 60;  // Total scene images from PDF + room_key_picked
 
 // ----- All possible game states -----
 // Each state corresponds to a specific screen/scene in the game

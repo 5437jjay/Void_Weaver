@@ -39,6 +39,9 @@ int m1CompCode[4] = {0,0,0,0};
 int m1CompPos = 0;
 int m1DeskCode[4] = {0,0,0,0};
 int m1BookPage = 0; // 0-8
+float m1BookCurlTimer = 0;   // >0 means curl animation is playing
+int m1BookCurlDir = 0;       // 0=none, 1=next(right-to-left), -1=prev(left-to-right)
+int m1BookTargetPage = 0;    // page transitioning to
 bool m1ShowLeaveDialog = false;
 
 // Module 2 state
@@ -181,6 +184,10 @@ void LoadAllResources() {
             scenes[i] = LoadTexture("system screen..jpeg");
         } else if (i == 20 && FileExists("desk passcode.jpeg")) {
             scenes[i] = LoadTexture("desk passcode.jpeg");
+        } else if (i == 54 && FileExists("mod 4 passcode.jpeg")) {
+            scenes[i] = LoadTexture("mod 4 passcode.jpeg");
+        } else if (i == 59 && FileExists("room_key_picked.png")) {
+            scenes[i] = LoadTexture("room_key_picked.png");
         } else {
             scenes[i] = LoadTexture(path);
         }

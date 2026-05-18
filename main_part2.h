@@ -49,7 +49,9 @@ void UpdateM1() {
     } break;
     case STATE_M1_ROOM_BASE1:
     case STATE_M1_ROOM_BASE2: {
-        DrawScene(m1CompOn ? 18 : 16);
+        // Show appropriate room base: key picked (scene 59), computer on (18), or default (16)
+        int roomScene = m1HasKey ? 59 : (m1CompOn ? 18 : 16);
+        DrawScene(roomScene);
         // Draw inventory box bottom-right
         DrawRectangle(SCREEN_W-80,SCREEN_H-80,70,70,(Color){0,0,0,150});
         DrawRectangleLines(SCREEN_W-80,SCREEN_H-80,70,70,(Color){100,200,255,200});
@@ -58,19 +60,19 @@ void UpdateM1() {
             DrawText("KEY",SCREEN_W-72,SCREEN_H-60,16,kc);
             if(DrawSelectable(SCREEN_W-80,SCREEN_H-80,70,70)) m1KeyGlow=!m1KeyGlow;
         }
-        // Selectable objects
-        if(DrawSelectable(580,150,200,180)) { // Computer screen
+        // Selectable objects - positions matched to actual room image
+        if(DrawSelectable(30,265,175,165)) { // Computer screen (left monitor)
             if(!m1CompOn) { m1CompOn=true; ChangeState(STATE_M1_ROOM_BASE2); }
             else if(!m1CompLogged) ChangeState(STATE_M1_COMPUTER);
             else ChangeState(STATE_M1_COMP_DESK);
         }
-        if(DrawSelectable(900,280,80,120)) ChangeState(STATE_M1_BOOK); // Book
-        if(DrawSelectable(560,380,220,60)) ChangeState(STATE_M1_DESK_PASS); // Desk
-        if(DrawSelectable(200,200,120,160)) { // Mirror
+        if(DrawSelectable(1095,175,125,100)) ChangeState(STATE_M1_BOOK); // Book (Machine Intelligence on top-right shelf)
+        if(DrawSelectable(30,430,200,150)) ChangeState(STATE_M1_DESK_PASS); // Desk (left desk drawers)
+        if(DrawSelectable(720,95,190,220)) { // Mirror (wall, center-right)
             if(m1KeyGlow && m1HasKey) ChangeState(STATE_M1_MIRROR_OPEN);
             else ChangeState(STATE_M1_MIRROR);
         }
-        if(m1PhotoSel && DrawSelectable(350,100,100,80)) ChangeState(STATE_M1_PHOTO_KEY);
+        if(m1PhotoSel && DrawSelectable(370,55,240,270)) ChangeState(STATE_M1_PHOTO_KEY); // Photo (wall frame, center-left)
     } break;
     case STATE_M1_COMPUTER: {
         DrawScene(17, 0.3f); // Dim background
@@ -115,32 +117,115 @@ void UpdateM1() {
         }
     } break;
     case STATE_M1_BOOK: {
-        DrawScene(GetSceneIndex(base), 0.3f);
-        int bx=290,by=100,bw=700,bh=500;
-        DrawRectangle(bx,by,bw,bh,(Color){60,40,20,240});
-        DrawRectangleLines(bx,by,bw,bh,(Color){139,90,43,255});
-        DrawText("Machine Intelligence",bx+200,by+20,28,(Color){200,180,140,255});
-        DrawRectangle(bx+bw/2-1,by+50,2,bh-60,(Color){100,70,30,200});
-        // Left page
-        if(m1BookPage>0) DrawText("[ empty page ]",bx+80,by+230,18,(Color){150,130,100,180});
-        // Right page
-        if(m1BookPage<8) DrawText("[ empty page ]",bx+bw/2+80,by+230,18,(Color){150,130,100,180});
-        if(m1BookPage==8) {
-            DrawText("3604",bx+bw/2+120,by+bh-80,36,(Color){80,40,10,255});
+        // Draw the actual book image from pdf_page12_img1 (scene 19)
+        DrawScene(19);
+
+        // Book layout coordinates (matched to the open book in the image)
+        int bkL = 210, bkT = 80, bkR = 1070, bkB = 640;
+        int spineX = 640;
+        int pgW = spineX - bkL;   // ~430
+        int pgH = bkB - bkT;      // ~560
+
+        // --- Update curl animation timer ---
+        if(m1BookCurlTimer > 0) {
+            m1BookCurlTimer -= GetFrameTime();
+            if(m1BookCurlTimer <= 0) {
+                m1BookCurlTimer = 0;
+                m1BookPage = m1BookTargetPage;
+                m1BookCurlDir = 0;
+            }
         }
-        // Arrow buttons
-        if(m1BookPage>0 && DrawButton(bx+20,by+bh-60,80,40,"< Prev",16)) m1BookPage--;
-        if(m1BookPage<8 && DrawButton(bx+bw-100,by+bh-60,80,40,"Next >",16)) m1BookPage++;
-        DrawText(TextFormat("Page %d/9",m1BookPage+1),bx+bw/2-30,by+bh-40,14,(Color){180,160,120,200});
-        // Click outside
-        Vector2 mp=GetMousePosition();
-        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)&&!(mp.x>=bx&&mp.x<=bx+bw&&mp.y>=by&&mp.y<=by+bh))
-            ChangeState(m1CompOn?STATE_M1_ROOM_BASE2:STATE_M1_ROOM_BASE1);
+
+        // Animation progress (0 = just started, 1 = complete)
+        float t = (m1BookCurlDir != 0 && m1BookCurlTimer > 0) ?
+                  1.0f - (m1BookCurlTimer / 0.5f) : -1.0f;
+
+        // --- PAGE CURL ANIMATION ---
+        if(t >= 0 && t <= 1.0f) {
+            if(m1BookCurlDir == 1) {
+                // NEXT: right page curls toward the left (spine)
+                float foldEdge = spineX + pgW * (1.0f - t);
+                float remainW = foldEdge - spineX;
+                // Remaining visible right page
+                if(remainW > 2)
+                    DrawRectangle(spineX, bkT, (int)remainW, pgH, (Color){225,215,190,235});
+                // Curled fold-back strip (the lifted part of the page)
+                float foldW = (t < 0.5f) ? pgW * t * 0.6f : pgW * (1.0f - t) * 0.6f;
+                if(foldW > 2) {
+                    DrawRectangle((int)foldEdge, bkT, (int)foldW, pgH, (Color){200,188,162,210});
+                    // Fold shadow line
+                    DrawRectangle((int)foldEdge - 4, bkT, 8, pgH,
+                        (Color){0,0,0,(unsigned char)(70 * (1.0f - t))});
+                }
+                // Gradient shadow on left page (page landing)
+                unsigned char shAlpha = (unsigned char)(40 * (t > 0.5f ? (t - 0.5f) * 2 : 0));
+                if(shAlpha > 0)
+                    DrawRectangle(spineX - (int)(pgW * (t - 0.5f) * 0.4f), bkT,
+                        (int)(pgW * (t - 0.5f) * 0.4f), pgH, (Color){0,0,0,shAlpha});
+            }
+            else if(m1BookCurlDir == -1) {
+                // PREV: left page curls toward the right (spine)
+                float foldEdge = bkL + pgW * t;
+                float remainW = spineX - foldEdge;
+                if(remainW > 2)
+                    DrawRectangle((int)foldEdge, bkT, (int)remainW, pgH, (Color){225,215,190,235});
+                float foldW = (t < 0.5f) ? pgW * t * 0.6f : pgW * (1.0f - t) * 0.6f;
+                if(foldW > 2) {
+                    DrawRectangle((int)foldEdge - (int)foldW, bkT, (int)foldW, pgH,
+                        (Color){200,188,162,210});
+                    DrawRectangle((int)foldEdge - 4, bkT, 8, pgH,
+                        (Color){0,0,0,(unsigned char)(70 * (1.0f - t))});
+                }
+                unsigned char shAlpha = (unsigned char)(40 * (t > 0.5f ? (t - 0.5f) * 2 : 0));
+                if(shAlpha > 0)
+                    DrawRectangle(spineX, bkT,
+                        (int)(pgW * (t - 0.5f) * 0.4f), pgH, (Color){0,0,0,shAlpha});
+            }
+        }
+
+        // --- PAGE CONTENT (only when not animating) ---
+        if(m1BookCurlDir == 0) {
+            // Left page text
+            if(m1BookPage > 0)
+                DrawText("[ empty page ]", bkL + 100, bkT + 250, 18, (Color){120,100,70,140});
+            // Right page text
+            if(m1BookPage < 8)
+                DrawText("[ empty page ]", spineX + 80, bkT + 250, 18, (Color){120,100,70,140});
+            // Passcode on last page (page 9)
+            if(m1BookPage == 8)
+                DrawText("3604", spineX + 130, bkB - 130, 36, (Color){80,40,10,255});
+        }
+
+        // Page indicator
+        DrawText(TextFormat("Page %d / 9", m1BookPage + 1), spineX - 35, bkB + 15, 16,
+            (Color){180,160,120,200});
+
+        // Navigation arrows (use the arrow areas visible in the book image)
+        if(m1BookCurlDir == 0) {
+            // Left arrow area (◄) - previous page
+            if(m1BookPage > 0 && DrawSelectable(195, 320, 55, 55)) {
+                m1BookTargetPage = m1BookPage - 1;
+                m1BookCurlDir = -1;
+                m1BookCurlTimer = 0.5f;
+            }
+            // Right arrow area (►) - next page
+            if(m1BookPage < 8 && DrawSelectable(1020, 320, 55, 55)) {
+                m1BookTargetPage = m1BookPage + 1;
+                m1BookCurlDir = 1;
+                m1BookCurlTimer = 0.5f;
+            }
+        }
+
+        // Click outside book to close
+        Vector2 mp = GetMousePosition();
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT) &&
+           !(mp.x >= bkL - 20 && mp.x <= bkR + 20 && mp.y >= bkT - 20 && mp.y <= bkB + 20))
+            ChangeState(m1CompOn ? STATE_M1_ROOM_BASE2 : STATE_M1_ROOM_BASE1);
     } break;
     case STATE_M1_DESK_PASS: {
         DrawScene(20);
-        int bx=440,by=250;
-        DrawRectangle(bx-20,by-20,400,200,(Color){20,30,50,230});
+        int bx=440,by=250,bw=400,bh2=200;
+        DrawRectangle(bx-20,by-20,bw,bh2,(Color){20,30,50,230});
         DrawText("DESK LOCK",bx+120,by-10,22,(Color){200,200,200,255});
         for(int i=0;i<4;i++) {
             int dx=bx+i*90;
@@ -159,7 +244,12 @@ void UpdateM1() {
             DrawText("UNLOCKED!",bx+110,by+150,24,GREEN);
             if(stateTimer>1.0f) { m1DeskOpen=true; m1PhotoSel=true; ChangeState(STATE_M1_DESK_ITEMS); }
         }
+        // Click outside the passcode box OR right-click to go back to room
         Vector2 mp=GetMousePosition();
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT) &&
+           !(mp.x>=bx-20&&mp.x<=bx-20+bw&&mp.y>=by-20&&mp.y<=by-20+bh2)) {
+            ChangeState(m1CompOn?STATE_M1_ROOM_BASE2:STATE_M1_ROOM_BASE1);
+        }
         if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
             ChangeState(m1CompOn?STATE_M1_ROOM_BASE2:STATE_M1_ROOM_BASE1);
     } break;
@@ -207,13 +297,13 @@ void UpdateM1() {
     } break;
     case STATE_M1_COMP_DESK: {
         DrawScene(26);
-        // Location icon selectable
-        if(DrawSelectable(200,300,100,100)) ChangeState(STATE_M1_MAP);
+        // Location of L icon selectable (center of desktop)
+        if(DrawSelectable(555,240,90,90)) ChangeState(STATE_M1_MAP);
     } break;
     case STATE_M1_MAP: {
         DrawScene(27);
-        // Red dot selectable - starts travel sequence
-        if(DrawSelectable(700,350,40,40)) StartSlide(STATE_TRAVEL_FLIGHT,1);
+        // Red dot/crosshair on Greenland - starts travel sequence
+        if(DrawSelectable(555,260,55,55)) StartSlide(STATE_TRAVEL_FLIGHT,1);
     } break;
     default: break;
     }
