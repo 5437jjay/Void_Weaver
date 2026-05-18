@@ -117,27 +117,110 @@ void UpdateM1() {
         }
     } break;
     case STATE_M1_BOOK: {
-        DrawScene(GetSceneIndex(base), 0.3f);
-        int bx=290,by=100,bw=700,bh=500;
-        DrawRectangle(bx,by,bw,bh,(Color){60,40,20,240});
-        DrawRectangleLines(bx,by,bw,bh,(Color){139,90,43,255});
-        DrawText("Machine Intelligence",bx+200,by+20,28,(Color){200,180,140,255});
-        DrawRectangle(bx+bw/2-1,by+50,2,bh-60,(Color){100,70,30,200});
-        // Left page
-        if(m1BookPage>0) DrawText("[ empty page ]",bx+80,by+230,18,(Color){150,130,100,180});
-        // Right page
-        if(m1BookPage<8) DrawText("[ empty page ]",bx+bw/2+80,by+230,18,(Color){150,130,100,180});
-        if(m1BookPage==8) {
-            DrawText("3604",bx+bw/2+120,by+bh-80,36,(Color){80,40,10,255});
+        // Draw the actual book image from pdf_page12_img1 (scene 19)
+        DrawScene(19);
+
+        // Book layout coordinates (matched to the open book in the image)
+        int bkL = 210, bkT = 80, bkR = 1070, bkB = 640;
+        int spineX = 640;
+        int pgW = spineX - bkL;   // ~430
+        int pgH = bkB - bkT;      // ~560
+
+        // --- Update curl animation timer ---
+        if(m1BookCurlTimer > 0) {
+            m1BookCurlTimer -= GetFrameTime();
+            if(m1BookCurlTimer <= 0) {
+                m1BookCurlTimer = 0;
+                m1BookPage = m1BookTargetPage;
+                m1BookCurlDir = 0;
+            }
         }
-        // Arrow buttons
-        if(m1BookPage>0 && DrawButton(bx+20,by+bh-60,80,40,"< Prev",16)) m1BookPage--;
-        if(m1BookPage<8 && DrawButton(bx+bw-100,by+bh-60,80,40,"Next >",16)) m1BookPage++;
-        DrawText(TextFormat("Page %d/9",m1BookPage+1),bx+bw/2-30,by+bh-40,14,(Color){180,160,120,200});
-        // Click outside
-        Vector2 mp=GetMousePosition();
-        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)&&!(mp.x>=bx&&mp.x<=bx+bw&&mp.y>=by&&mp.y<=by+bh))
-            ChangeState(m1CompOn?STATE_M1_ROOM_BASE2:STATE_M1_ROOM_BASE1);
+
+        // Animation progress (0 = just started, 1 = complete)
+        float t = (m1BookCurlDir != 0 && m1BookCurlTimer > 0) ?
+                  1.0f - (m1BookCurlTimer / 0.5f) : -1.0f;
+
+        // --- PAGE CURL ANIMATION ---
+        if(t >= 0 && t <= 1.0f) {
+            if(m1BookCurlDir == 1) {
+                // NEXT: right page curls toward the left (spine)
+                float foldEdge = spineX + pgW * (1.0f - t);
+                float remainW = foldEdge - spineX;
+                // Remaining visible right page
+                if(remainW > 2)
+                    DrawRectangle(spineX, bkT, (int)remainW, pgH, (Color){225,215,190,235});
+                // Curled fold-back strip (the lifted part of the page)
+                float foldW = (t < 0.5f) ? pgW * t * 0.6f : pgW * (1.0f - t) * 0.6f;
+                if(foldW > 2) {
+                    DrawRectangle((int)foldEdge, bkT, (int)foldW, pgH, (Color){200,188,162,210});
+                    // Fold shadow line
+                    DrawRectangle((int)foldEdge - 4, bkT, 8, pgH,
+                        (Color){0,0,0,(unsigned char)(70 * (1.0f - t))});
+                }
+                // Gradient shadow on left page (page landing)
+                unsigned char shAlpha = (unsigned char)(40 * (t > 0.5f ? (t - 0.5f) * 2 : 0));
+                if(shAlpha > 0)
+                    DrawRectangle(spineX - (int)(pgW * (t - 0.5f) * 0.4f), bkT,
+                        (int)(pgW * (t - 0.5f) * 0.4f), pgH, (Color){0,0,0,shAlpha});
+            }
+            else if(m1BookCurlDir == -1) {
+                // PREV: left page curls toward the right (spine)
+                float foldEdge = bkL + pgW * t;
+                float remainW = spineX - foldEdge;
+                if(remainW > 2)
+                    DrawRectangle((int)foldEdge, bkT, (int)remainW, pgH, (Color){225,215,190,235});
+                float foldW = (t < 0.5f) ? pgW * t * 0.6f : pgW * (1.0f - t) * 0.6f;
+                if(foldW > 2) {
+                    DrawRectangle((int)foldEdge - (int)foldW, bkT, (int)foldW, pgH,
+                        (Color){200,188,162,210});
+                    DrawRectangle((int)foldEdge - 4, bkT, 8, pgH,
+                        (Color){0,0,0,(unsigned char)(70 * (1.0f - t))});
+                }
+                unsigned char shAlpha = (unsigned char)(40 * (t > 0.5f ? (t - 0.5f) * 2 : 0));
+                if(shAlpha > 0)
+                    DrawRectangle(spineX, bkT,
+                        (int)(pgW * (t - 0.5f) * 0.4f), pgH, (Color){0,0,0,shAlpha});
+            }
+        }
+
+        // --- PAGE CONTENT (only when not animating) ---
+        if(m1BookCurlDir == 0) {
+            // Left page text
+            if(m1BookPage > 0)
+                DrawText("[ empty page ]", bkL + 100, bkT + 250, 18, (Color){120,100,70,140});
+            // Right page text
+            if(m1BookPage < 8)
+                DrawText("[ empty page ]", spineX + 80, bkT + 250, 18, (Color){120,100,70,140});
+            // Passcode on last page (page 9)
+            if(m1BookPage == 8)
+                DrawText("3604", spineX + 130, bkB - 130, 36, (Color){80,40,10,255});
+        }
+
+        // Page indicator
+        DrawText(TextFormat("Page %d / 9", m1BookPage + 1), spineX - 35, bkB + 15, 16,
+            (Color){180,160,120,200});
+
+        // Navigation arrows (use the arrow areas visible in the book image)
+        if(m1BookCurlDir == 0) {
+            // Left arrow area (◄) - previous page
+            if(m1BookPage > 0 && DrawSelectable(195, 320, 55, 55)) {
+                m1BookTargetPage = m1BookPage - 1;
+                m1BookCurlDir = -1;
+                m1BookCurlTimer = 0.5f;
+            }
+            // Right arrow area (►) - next page
+            if(m1BookPage < 8 && DrawSelectable(1020, 320, 55, 55)) {
+                m1BookTargetPage = m1BookPage + 1;
+                m1BookCurlDir = 1;
+                m1BookCurlTimer = 0.5f;
+            }
+        }
+
+        // Click outside book to close
+        Vector2 mp = GetMousePosition();
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT) &&
+           !(mp.x >= bkL - 20 && mp.x <= bkR + 20 && mp.y >= bkT - 20 && mp.y <= bkB + 20))
+            ChangeState(m1CompOn ? STATE_M1_ROOM_BASE2 : STATE_M1_ROOM_BASE1);
     } break;
     case STATE_M1_DESK_PASS: {
         DrawScene(20);
