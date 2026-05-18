@@ -1,0 +1,8 @@
+﻿# Compiled binaries
+*.exe
+*.a
+*.dll
+
+# Large raw extraction folders
+pdf_output/
+pdf_pages/
