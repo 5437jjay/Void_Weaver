@@ -189,7 +189,7 @@ void UpdateM1() {
             if(m1KeyGlow && m1HasKey) ChangeState(STATE_M1_MIRROR_OPEN);
             else ChangeState(STATE_M1_MIRROR);
         }
-        if(m1PhotoSel && DrawSelectable(370,55,240,270)) ChangeState(STATE_M1_PHOTO_KEY); // Photo (wall frame, center-left)
+        if(m1PhotoSel && !m1HasKey && DrawSelectable(289,70,240,270)) ChangeState(STATE_M1_PHOTO_KEY); // Photo/Key (wall, center-left) - hidden once key is picked
     } break;
     case STATE_M1_COMPUTER: {
         DrawScene(17, 0.3f); // Dim background
@@ -374,9 +374,9 @@ void UpdateM1() {
         DrawScene(21);
         // Items float up and down
         float bob=sinf(animTime*2)*10;
-        DrawText("Photo",500,(int)(300+bob),20,(Color){255,255,100,255});
+        DrawText("Photo",820,(int)(30+bob),20,(Color){255,255,100,255});
         // Photo is selectable - clicking it makes wall photo selectable
-        if(DrawSelectable(460,280+(int)bob,120,60)) {
+        if(DrawSelectable(730,58+(int)bob,320,390)) {
             m1PhotoSel=true;
             ChangeState(m1CompOn?STATE_M1_ROOM_BASE2:STATE_M1_ROOM_BASE1);
         }
@@ -384,7 +384,7 @@ void UpdateM1() {
     case STATE_M1_PHOTO_KEY: {
         DrawScene(22);
         // Key visible - selectable
-        if(!m1HasKey && DrawSelectable(600,400,80,40)) {
+        if(!m1HasKey && DrawSelectable(410,115,30,70)) {
             m1HasKey=true;
             ChangeState(m1CompOn?STATE_M1_ROOM_BASE2:STATE_M1_ROOM_BASE1);
         }
@@ -398,8 +398,8 @@ void UpdateM1() {
     } break;
     case STATE_M1_MIRROR_OPEN: {
         DrawScene(24);
-        // Letter in shelf is selectable
-        if(DrawSelectable(550,250,180,120)) ChangeState(STATE_M1_LETTER);
+        // Letter in shelf is selectable - positioned over the envelope on the bottom shelf
+        if(DrawSelectable(727,510,330,118)) ChangeState(STATE_M1_LETTER);
     } break;
     case STATE_M1_LETTER: {
         DrawScene(25);
@@ -415,7 +415,7 @@ void UpdateM1() {
     case STATE_M1_COMP_DESK: {
         DrawScene(26);
         // Location of L icon selectable (center of desktop)
-        if(DrawSelectable(555,240,90,90)) ChangeState(STATE_M1_MAP);
+        if(DrawSelectable(550,243,90,90)) ChangeState(STATE_M1_MAP);
     } break;
     case STATE_M1_MAP: {
         DrawScene(27);

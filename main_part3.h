@@ -605,8 +605,8 @@ void UpdateM4() {
     switch(curState) {
     case STATE_M4_SUBMARINE: {
         DrawScene(53, 1.0f, true);
-        // Passlock system selectable
-        if(DrawSelectable(550,300,180,200)) ChangeState(STATE_M4_PASSLOCK);
+        // Passlock red keypad panel on right wall of vault is selectable
+        if(DrawSelectable(891,243,55,72)) ChangeState(STATE_M4_PASSLOCK);
     } break;
     case STATE_M4_PASSLOCK: {
         DrawScene(54);
@@ -652,6 +652,20 @@ void UpdateM4() {
                 DrawText("WRONG CODE",kx+100,ky+380,24,RED);
                 if(stateTimer>1.5f) { passPos=0; stateTimer=0; }
             }
+        }
+        // Click outside the passcode box OR right-click to go back to submarine room
+        Vector2 mp=GetMousePosition();
+        int bxP=kx-20, byP=ky-60, bwP=360, bhP=420;
+        if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT) &&
+           !(mp.x>=bxP&&mp.x<=bxP+bwP&&mp.y>=byP&&mp.y<=byP+bhP)) {
+            passPos=0; PlaySound(keySnds[0]);
+            SetSoundVolume(bgMusic,0.5f); bgMusicMuted=false;
+            ChangeState(STATE_M4_SUBMARINE);
+        }
+        if(IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+            passPos=0; PlaySound(keySnds[0]);
+            SetSoundVolume(bgMusic,0.5f); bgMusicMuted=false;
+            ChangeState(STATE_M4_SUBMARINE);
         }
     } break;
     case STATE_M4_AI_ROOM: {

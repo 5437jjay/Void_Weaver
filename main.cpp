@@ -11,26 +11,98 @@
 //   main_part2.h   - Title, Intro cutscenes, Module 1, Travel
 //   main_part3.h   - Module 2 (TTT), Module 3 (Chess+Lift), Module 4
 // ============================================================
+//
+// VIRTUAL RESOLUTION SYSTEM
+// The game is designed at 1280x720. We render everything into a
+// RenderTexture at that size, then scale it up (letterboxed) to fill
+// the actual window/screen.
+//
+// GetMousePosition() is #define-d BEFORE including any game headers so
+// that every hit-test in the game code transparently receives mouse
+// coordinates in the virtual 1280x720 space.
 
+#include "raylib.h"
+#include <ctime>
+
+// ----- Virtual resolution globals (forward-declared so the macro can use them) -----
+static Vector2 gVirtualMouse = {0, 0};  // Updated each frame in virtual space
+static float   gScaleX = 1.0f;
+static float   gScaleY = 1.0f;
+static Vector2 gOffset  = {0, 0};
+
+// Override GetMousePosition() to return virtual-space coordinates.
+// This macro is seen by all headers included below.
+#undef  GetMousePosition
+#define GetMousePosition() (gVirtualMouse)
+
+// ----- Now include all game headers (they will use the macro above) -----
 #include "main_part3.h"
+
+// ===== VIRTUAL RESOLUTION HELPERS =====
+
+static RenderTexture2D gRenderTarget;
+static Rectangle       gDestRect;
+
+// Recalculate scale & offset to letterbox/pillarbox the 1280x720 canvas
+static void UpdateVirtualScale() {
+    int rw = GetScreenWidth();
+    int rh = GetScreenHeight();
+    float scaleX = (float)rw / (float)SCREEN_W;
+    float scaleY = (float)rh / (float)SCREEN_H;
+    float scale  = (scaleX < scaleY) ? scaleX : scaleY;  // maintain aspect ratio
+    gScaleX = scale;
+    gScaleY = scale;
+    float dw = SCREEN_W * scale;
+    float dh = SCREEN_H * scale;
+    gOffset   = { (rw - dw) * 0.5f, (rh - dh) * 0.5f };
+    gDestRect = { gOffset.x, gOffset.y, dw, dh };
+}
+
+// Translate real screen mouse position to virtual 1280x720 space.
+// We temporarily undef our macro so we call the real raylib function.
+#undef GetMousePosition
+static Vector2 ComputeVirtualMouse() {
+    Vector2 real = GetMousePosition();   // real raylib call (macro is undef'd above)
+    return { (real.x - gOffset.x) / gScaleX,
+             (real.y - gOffset.y) / gScaleY };
+}
+// Re-apply the macro so nothing below this point calls the real GetMousePosition
+#define GetMousePosition() (gVirtualMouse)
 
 // ===== MAIN FUNCTION =====
 int main() {
     // Seed random number generator for AI moves
     srand((unsigned)time(NULL));
 
-    // Initialize window and audio - start in borderless fullscreen to fill laptop screen
+    // Initialize window and audio.
+    // FLAG_BORDERLESS_WINDOWED_MODE makes the window fill the monitor at startup.
+    // The render-texture system then scales the 1280x720 virtual canvas
+    // up to fit the actual screen resolution with correct aspect ratio.
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT | FLAG_BORDERLESS_WINDOWED_MODE);
-    InitWindow(GetMonitorWidth(0), GetMonitorHeight(0), "VOID WEAVER - Detective Life in an AI Futuristic World");
+    InitWindow(SCREEN_W, SCREEN_H, "VOID WEAVER - Detective Life in an AI Futuristic World");
     InitAudioDevice();
+    // If audio device failed to init, wait briefly and retry once
+    if (!IsAudioDeviceReady()) {
+        WaitTime(0.5);
+        CloseAudioDevice();
+        InitAudioDevice();
+    }
+    bool audioOk = IsAudioDeviceReady();
     SetTargetFPS(60);
 
     // Load all scene images, sounds, and music
     LoadAllResources();
 
-    // Start background music loop
-    SetSoundVolume(bgMusic, 0.5f);
-    PlaySound(bgMusic);
+    // Start background music loop (only if audio initialized successfully)
+    if (audioOk) {
+        SetSoundVolume(bgMusic, 0.5f);
+        PlaySound(bgMusic);
+    }
+
+    // Create the virtual 1280x720 render target
+    gRenderTarget = LoadRenderTexture(SCREEN_W, SCREEN_H);
+    SetTextureFilter(gRenderTarget.texture, TEXTURE_FILTER_BILINEAR);
+    UpdateVirtualScale();
 
     // Initialize game state
     curState = STATE_TITLE;
@@ -46,14 +118,22 @@ int main() {
         animTime += dt;
 
         // Loop background music when it finishes
-        if (!IsSoundPlaying(bgMusic) && !bgMusicMuted) PlaySound(bgMusic);
+        if (audioOk && !IsSoundPlaying(bgMusic) && !bgMusicMuted) PlaySound(bgMusic);
+
+        // Recalculate scale on every frame (handles resize / fullscreen toggle)
+        UpdateVirtualScale();
+
+        // Update virtual mouse so all game-code calls to GetMousePosition()
+        // (which expand to gVirtualMouse) return the correct virtual coords
+        gVirtualMouse = ComputeVirtualMouse();
 
         // Toggle fullscreen with F11
         if (IsKeyPressed(KEY_F11)) {
             ToggleBorderlessWindowed();
         }
 
-        BeginDrawing();
+        // ===== RENDER GAME INTO VIRTUAL CANVAS (1280x720) =====
+        BeginTextureMode(gRenderTarget);
         ClearBackground(BLACK);
 
         // ===== HANDLE FADE TRANSITION =====
@@ -133,10 +213,19 @@ int main() {
                 (Color){0, 0, 0, (unsigned char)(fadeAlpha * 255)});
         }
 
+        EndTextureMode();
+
+        // ===== BLIT VIRTUAL CANVAS ONTO REAL SCREEN =====
+        BeginDrawing();
+        ClearBackground(BLACK);
+        // RenderTexture is stored upside-down in OpenGL convention: negate height to flip
+        Rectangle srcRect = { 0, 0, (float)SCREEN_W, -(float)SCREEN_H };
+        DrawTexturePro(gRenderTarget.texture, srcRect, gDestRect, {0,0}, 0.0f, WHITE);
         EndDrawing();
     }
 
     // ===== CLEANUP =====
+    UnloadRenderTexture(gRenderTarget);
     UnloadAllResources();
     CloseAudioDevice();
     CloseWindow();

@@ -185,12 +185,14 @@ void LoadAllResources() {
             scenes[i] = LoadTexture("system screen..jpeg");
         } else if (i == 20 && FileExists("desk passcode.jpeg")) {
             scenes[i] = LoadTexture("desk passcode.jpeg");
-        } else if (i == 34 && FileExists("vortex_mirror_clean.png")) {
-            scenes[i] = LoadTexture("vortex_mirror_clean.png");
+        } else if (i == 34 && FileExists("uttt.jpeg")) {
+            scenes[i] = LoadTexture("uttt.jpeg");
         } else if (i == 39 && FileExists("bg_closed.png")) {
             scenes[i] = LoadTexture("bg_closed.png");
         } else if (i == 40 && FileExists("bg_open.png")) {
             scenes[i] = LoadTexture("bg_open.png");
+        } else if (i == 53 && FileExists("vault.jpeg")) {
+            scenes[i] = LoadTexture("vault.jpeg");
         } else if (i == 54 && FileExists("mod 4 passcode.jpeg")) {
             scenes[i] = LoadTexture("mod 4 passcode.jpeg");
         } else if (i == 59 && FileExists("room_key_picked.png")) {
