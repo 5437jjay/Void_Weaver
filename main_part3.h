@@ -7,7 +7,7 @@
 void UpdateM2() {
     switch(curState) {
     case STATE_M2_GARAGE: {
-        DrawScene(32, 1.0f, true);
+        DrawScene(32, 1.0f, false);
         // Mirror in center is selectable
         if(DrawSelectable(480,100,320,500)) ChangeState(STATE_M2_MIRROR);
     } break;
@@ -227,7 +227,7 @@ void UpdateM2() {
         }
     } break;
     case STATE_M2_VEHICLE: {
-        DrawScene(38, 1.0f, true);
+        DrawScene(38, 1.0f, false);
         // Click levitation vehicle
         if(DrawSelectable(400,200,480,400)) StartSlide(STATE_M3_COCKPIT,1);
     } break;
@@ -236,11 +236,36 @@ void UpdateM2() {
 }
 
 // ===== MODULE 3: VEHICLE + CHESS + LIFT =====
+static void DrawProceduralHandle(float pushOffset) {
+    int pivotX = 450;
+    int pivotY = 520 + (int)pushOffset;
+    int endX = 830;
+    int endY = 520 + (int)pushOffset;
+    
+    // Draw the slot behind the lever
+    DrawRectangle(pivotX - 20, pivotY - 12, endX - pivotX + 40, 24, (Color){20, 20, 25, 255});
+    DrawRectangleLines(pivotX - 20, pivotY - 12, endX - pivotX + 40, 24, (Color){60, 65, 75, 255});
+    
+    // Draw the lever shaft (metallic look)
+    DrawLineEx({(float)pivotX, (float)pivotY}, {(float)endX, (float)endY}, 12.0f, (Color){160, 165, 175, 255});
+    DrawLineEx({(float)pivotX, (float)pivotY - 2}, {(float)endX, (float)endY - 2}, 4.0f, (Color){220, 225, 235, 255}); // highlight
+    
+    // Draw the pivot cover (circular metal cap)
+    DrawCircle(pivotX, pivotY, 16, (Color){90, 95, 105, 255});
+    DrawCircleLines(pivotX, pivotY, 16, (Color){50, 55, 60, 255});
+    DrawCircle(pivotX, pivotY, 6, (Color){40, 40, 45, 255});
+    
+    // Draw the knob at the end (red spherical knob with highlight)
+    DrawCircle(endX, endY, 24, (Color){190, 40, 40, 255}); // Base red
+    DrawCircleGradient(endX - 5, endY - 5, 20, (Color){255, 120, 120, 255}, (Color){130, 20, 20, 255}); // spherical gradient
+    DrawCircle(endX - 8, endY - 8, 6, (Color){255, 220, 220, 180}); // highlight dot
+}
+
 void UpdateM3() {
     switch(curState) {
     case STATE_M3_COCKPIT: {
         // Draw closed door background
-        DrawScene(39, 1.0f, true);
+        DrawScene(39, 1.0f, false);
         
         // Draw the arms overlay at original height
         if(armsTex.id > 0) {
@@ -248,6 +273,8 @@ void UpdateM3() {
                 {0,0,(float)armsTex.width,(float)armsTex.height},
                 {0,0,(float)SCREEN_W,(float)SCREEN_H},
                 {0,0}, 0.0f, WHITE);
+        } else {
+            DrawProceduralHandle(0.0f);
         }
         
         // Click the handle to push it down
@@ -280,6 +307,8 @@ void UpdateM3() {
                 {0,0,(float)armsTex.width,(float)armsTex.height},
                 {0, armPush, (float)SCREEN_W, (float)SCREEN_H},
                 {0,0}, 0.0f, WHITE);
+        } else {
+            DrawProceduralHandle(180.0f * ease);
         }
         
         if(stateTimer > duration + 1.0f) StartSlide(STATE_M3_FLOAT_UP, 1);
@@ -315,7 +344,7 @@ void UpdateM3() {
         if(stateTimer>4.0f) StartSlide(STATE_M3_NEAR_WALL,1);
     } break;
     case STATE_M3_NEAR_WALL: {
-        DrawScene(46, 1.0f, true);
+        DrawScene(46, 1.0f, false);
         pageTimer+=GetFrameTime();
         DrawCinText(m3Texts[4],pageTimer,0.04f,SCREEN_W);
         if(DrawSelectable(400,100,480,500)) StartSlide(STATE_M3_WALL_ZOOM,1);
@@ -604,7 +633,7 @@ void UpdateM3() {
 void UpdateM4() {
     switch(curState) {
     case STATE_M4_SUBMARINE: {
-        DrawScene(53, 1.0f, true);
+        DrawScene(53, 1.0f, false);
         // Passlock red keypad panel on right wall of vault is selectable
         if(DrawSelectable(891,243,55,72)) ChangeState(STATE_M4_PASSLOCK);
     } break;
@@ -669,7 +698,7 @@ void UpdateM4() {
         }
     } break;
     case STATE_M4_AI_ROOM: {
-        DrawScene(55, 1.0f, true); // Cinematic zoom
+        DrawScene(55, 1.0f, false); // Cinematic zoom
         // AI machine selectable
         if(DrawSelectable(450,150,380,400)) StartFade(STATE_M4_BREAK);
     } break;

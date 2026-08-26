@@ -440,7 +440,7 @@ void UpdateM1() {
 // ===== TRAVEL SEQUENCE =====
 void UpdateTravel() {
     int idx=(int)curState-(int)STATE_TRAVEL_FLIGHT; // 0-3
-    DrawScene(28+idx, 1.0f, true);
+    DrawScene(28+idx, 1.0f, idx < 3); // Disable cinematic zoom for Garage (idx==3) so door hitbox stays aligned
     pageTimer+=GetFrameTime();
     bool done = DrawCinText(travelTexts[idx],pageTimer,0.04f,SCREEN_W-40);
     if(idx<3) { // Auto advance for first 3

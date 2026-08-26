@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>VOID WEAVER - Detective Life in an AI Futuristic World</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #000;
+        color: #c0c8e0;
+        overflow: hidden;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      #game-container {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: #000;
+      }
+
+      #canvas-wrap {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        line-height: 0;
+        background: black;
+      }
+
+      canvas#canvas {
+        display: block;
+        background-color: black;
+        border: none;
+        padding: 0;
+        margin: 0;
+        width: 100vw !important;
+        height: 100vh !important;
+        object-fit: fill !important;
+      }
+
+      /* ===== FULLSCREEN FIX ===== */
+      #canvas-wrap:fullscreen,
+      #canvas-wrap:-webkit-full-screen {
+        width: 100vw !important;
+        height: 100vh !important;
+        background: black;
+        border: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      #canvas-wrap:fullscreen canvas#canvas,
+      #canvas-wrap:-webkit-full-screen canvas#canvas {
+        width: 100vw !important;
+        height: 100vh !important;
+        object-fit: fill !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      /* Floating Controls bar */
+      #controls-bar {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 6px 14px;
+        background: rgba(18, 18, 30, 0.8);
+        backdrop-filter: blur(8px);
+        border-radius: 6px;
+        border: 1px solid rgba(80, 60, 200, 0.4);
+        font-size: 12px;
+      }
+      #controls-bar label { cursor: pointer; user-select: none; }
+      #controls-bar input[type="checkbox"] { margin-right: 4px; accent-color: #7060ff; }
+      #fullscreen-btn {
+        padding: 4px 14px;
+        background: linear-gradient(135deg, #4a3aaa, #6050dd);
+        color: white;
+        border: 1px solid #7060ff;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.2s;
+      }
+      #fullscreen-btn:hover {
+        background: linear-gradient(135deg, #5a4abb, #7060ff);
+        box-shadow: 0 0 12px rgba(112, 96, 255, 0.4);
+      }
+
+      /* Floating Status / loading */
+      #status-bar {
+        position: absolute;
+        top: 10px;
+        left: 15px;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 14px;
+        background: rgba(18, 18, 30, 0.8);
+        backdrop-filter: blur(8px);
+        border-radius: 6px;
+        font-size: 12px;
+      }
+
+      .spinner {
+        height: 18px; width: 18px;
+        border: 2px solid #2a2a4a;
+        border-top: 2px solid #7060ff;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      #status { font-size: 12px; color: #8888aa; }
+      #progress { height: 12px; width: 180px; accent-color: #7060ff; }
+
+      /* Hidden Output console */
+      #output { display: none; }
+    </style>
+  </head>
+  <body>
+    <div id="game-container">
+      <div id="status-bar">
+        <div class="spinner" id="spinner"></div>
+        <span id="status">Downloading...</span>
+        <progress value="0" max="100" id="progress" hidden></progress>
+      </div>
+
+      <div id="controls-bar">
+        <label><input type="checkbox" id="resize"> Resize canvas</label>
+        <label><input type="checkbox" id="pointerLock"> Lock mouse pointer</label>
+        <button id="fullscreen-btn" onclick="goFullscreen()">⛶ Fullscreen</button>
+      </div>
+
+      <div id="canvas-wrap">
+        <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+      </div>
+
+      <textarea id="output" rows="6"></textarea>
+    </div>
+
+    <script type='text/javascript'>
+      function goFullscreen() {
+        var wrap = document.getElementById('canvas-wrap');
+        if (wrap.requestFullscreen) wrap.requestFullscreen();
+        else if (wrap.webkitRequestFullscreen) wrap.webkitRequestFullscreen();
+        else if (wrap.mozRequestFullScreen) wrap.mozRequestFullScreen();
+        else if (wrap.msRequestFullscreen) wrap.msRequestFullscreen();
+      }
+
+      var statusElement = document.getElementById('status');
+      var progressElement = document.getElementById('progress');
+      var spinnerElement = document.getElementById('spinner');
+      var canvasElement = document.getElementById('canvas');
+      var outputElement = document.getElementById('output');
+      if (outputElement) outputElement.value = '';
+
+      canvasElement.addEventListener('webglcontextlost', (e) => {
+        alert('WebGL context lost. You will need to reload the page.');
+        e.preventDefault();
+      }, false);
+
+      var setStatus = (text) => {
+        if (!setStatus.last) setStatus.last = { time: Date.now(), text: '' };
+        if (text === setStatus.last.text) return;
+        var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+        var now = Date.now();
+        if (m && now - setStatus.last.time < 30) return;
+        setStatus.last.time = now;
+        setStatus.last.text = text;
+        if (m) {
+          text = m[1];
+          progressElement.value = parseInt(m[2])*100;
+          progressElement.max = parseInt(m[4])*100;
+          progressElement.hidden = false;
+          spinnerElement.hidden = false;
+        } else {
+          progressElement.value = null;
+          progressElement.max = null;
+          progressElement.hidden = true;
+          if (!text) spinnerElement.style.display = 'none';
+        }
+        statusElement.innerHTML = text;
+      };
+
+      var Module = {
+        print(...args) {
+          console.log(...args);
+          if (outputElement) {
+            var text = args.join(' ');
+            outputElement.value += text + "\n";
+            outputElement.scrollTop = outputElement.scrollHeight;
+          }
+        },
+        canvas: canvasElement,
+        setStatus: setStatus,
+        totalDependencies: 0,
+        monitorRunDependencies(left) {
+          this.totalDependencies = Math.max(this.totalDependencies, left);
+          setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+        }
+      };
+      setStatus('Downloading...');
+      window.onerror = (event) => {
+        setStatus('Exception thrown, see JavaScript console');
+        spinnerElement.style.display = 'none';
+        setStatus = (text) => {
+          if (text) console.error('[post-exception status] ' + text);
+        };
+      };
+
+    </script>
+    {{{ SCRIPT }}}
+  </body>
+</html>

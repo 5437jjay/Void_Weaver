@@ -252,4 +252,11 @@ const float KEY_FREQS[10] = {
 // Background music uses keys 8,1,5,7 = D5, C4, Ab4, C5
 const int BG_MUSIC_KEYS[4] = {8, 1, 5, 7};
 
+#if defined(PLATFORM_WEB)
+// Compatibility helper for Raylib v5.0 on web (which has thickness in DrawRectangleRoundedLines)
+inline void DrawRectangleRoundedLinesEx(Rectangle rec, float roundness, int segments, float lineThick, Color color) {
+    DrawRectangleRoundedLines(rec, roundness, segments, lineThick, color);
+}
+#endif
+
 #endif // GAME_STATES_H

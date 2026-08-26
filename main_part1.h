@@ -178,21 +178,33 @@ void LoadAllResources() {
     char path[256];
     for (int i = 0; i < TOTAL_SCENES; i++) {
         sprintf(path, "game_assets/scene_%02d.png", i);
-        // Prioritize loading the new front page image if it exists in the root directory
-        if (i == 0 && FileExists("front page.jpeg")) {
+        // Prioritize loading the new front page image if it exists in the root directory (support clean PNG names for WebAssembly)
+        if (i == 0 && FileExists("front_page.png")) {
+            scenes[i] = LoadTexture("front_page.png");
+        } else if (i == 0 && FileExists("front page.jpeg")) {
             scenes[i] = LoadTexture("front page.jpeg");
+        } else if (i == 17 && FileExists("system_screen.png")) {
+            scenes[i] = LoadTexture("system_screen.png");
         } else if (i == 17 && FileExists("system screen..jpeg")) {
             scenes[i] = LoadTexture("system screen..jpeg");
+        } else if (i == 20 && FileExists("desk_passcode.png")) {
+            scenes[i] = LoadTexture("desk_passcode.png");
         } else if (i == 20 && FileExists("desk passcode.jpeg")) {
             scenes[i] = LoadTexture("desk passcode.jpeg");
+        } else if (i == 34 && FileExists("uttt.png")) {
+            scenes[i] = LoadTexture("uttt.png");
         } else if (i == 34 && FileExists("uttt.jpeg")) {
             scenes[i] = LoadTexture("uttt.jpeg");
         } else if (i == 39 && FileExists("bg_closed.png")) {
             scenes[i] = LoadTexture("bg_closed.png");
         } else if (i == 40 && FileExists("bg_open.png")) {
             scenes[i] = LoadTexture("bg_open.png");
+        } else if (i == 53 && FileExists("vault.png")) {
+            scenes[i] = LoadTexture("vault.png");
         } else if (i == 53 && FileExists("vault.jpeg")) {
             scenes[i] = LoadTexture("vault.jpeg");
+        } else if (i == 54 && FileExists("mod_4_passcode.png")) {
+            scenes[i] = LoadTexture("mod_4_passcode.png");
         } else if (i == 54 && FileExists("mod 4 passcode.jpeg")) {
             scenes[i] = LoadTexture("mod 4 passcode.jpeg");
         } else if (i == 59 && FileExists("room_key_picked.png")) {
